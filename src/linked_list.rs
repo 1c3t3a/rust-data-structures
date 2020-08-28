@@ -16,6 +16,18 @@ impl <T> LinkedList<T> where T: Eq {
         LinkedList { head: None }
     }
 
+    pub fn from_vec(list: Vec<T>) -> Self {
+        let mut result = Self::new();
+        for elem in list {
+            result.insert(elem);
+        }
+        result
+    }
+
+    fn is_empty(self) -> bool {
+        self.head == None
+    }
+
     fn insert(&mut self, val: T) -> bool{
         match &mut self.head {
             Some(first) => first.insert(val),
@@ -33,13 +45,6 @@ impl <T> LinkedList<T> where T: Eq {
         }
     }
     
-    pub fn from_list(list: Vec<T>) -> Self {
-        let mut result = Self::new();
-        for elem in list {
-            result.insert(elem);
-        }
-        result
-    }
 }
 
 impl <T> Node<T> where T : Eq {
@@ -94,6 +99,7 @@ mod test {
     fn test_new() {
         let sut = LinkedList::<bool>::new();
         assert_eq!(sut.head, None);
+        assert_eq!(sut.is_empty(), true);
     }
 
     #[test]
@@ -136,13 +142,13 @@ mod test {
     #[test]
     fn test_to_list() {
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_list(vector);
+        let sut = LinkedList::from_vec(vector);
         assert_eq!(sut.head.unwrap().value, 1);
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_list(vector);
+        let sut = LinkedList::from_vec(vector);
         assert_eq!(sut.head.unwrap().next.unwrap().value, 2);
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_list(vector);
+        let sut = LinkedList::from_vec(vector);
         assert_eq!(sut.head.unwrap().next.unwrap().next.unwrap().value, 3);
     }
 
