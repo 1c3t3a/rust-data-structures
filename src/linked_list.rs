@@ -1,4 +1,3 @@
-use std::mem;
 #[derive(Debug, Eq, PartialEq)]
 pub struct LinkedList<T> {
     head: Link<T>,
@@ -33,19 +32,13 @@ impl <T> LinkedList<T> where T: Eq {
             None => false,
         }
     }
-
-    pub fn remove(&mut self, val: T) -> bool {
-        match &mut self.head {
-            Some(first) => {
-                if first.value == val {
-                    mem::replace(first, self.head.unwrap().next.unwrap());
-                    true
-                } else {
-                    first.remove(val)
-                }
-            },
-            None => false,
+    
+    pub fn from_list(list: Vec<T>) -> Self {
+        let mut result = Self::new();
+        for elem in list {
+            result.insert(elem);
         }
+        result
     }
 }
 
@@ -76,22 +69,22 @@ impl <T> Node<T> where T : Eq {
         }
     }
 
-    fn remove(&mut self, val: T) -> bool {
-        match &mut self.next {
-            Some(iter) => {
-                if iter.value == val {
-                    self.next = iter.next;
-                    true
-                } else {
-                    match &mut iter.next {
-                        Some(next_n) => next_n.remove(val),
-                        None => false
-                    }
-                }
-            },
-            None => false,
-        }
-    }
+}
+
+macro_rules! list {
+    () => {
+        LinkedList::new();
+    };
+    ($elem:expr) => {{
+        let mut res = LinkedList::new();
+        res.insert($elem);
+        res
+    }};
+    ($($elem:expr),+) => {{
+        let mut res = LinkedList::new();
+        $(res.insert($elem);)+
+        res
+    }};
 }
 
 #[cfg(test)]
@@ -138,6 +131,31 @@ mod test {
         assert_eq!(sut.contains(42), false);
         sut.insert(42);
         assert_eq!(sut.contains(42), true);
+    }
+
+    #[test]
+    fn test_to_list() {
+        let vector = vec![1, 2, 3];
+        let sut = LinkedList::from_list(vector);
+        assert_eq!(sut.head.unwrap().value, 1);
+        let vector = vec![1, 2, 3];
+        let sut = LinkedList::from_list(vector);
+        assert_eq!(sut.head.unwrap().next.unwrap().value, 2);
+        let vector = vec![1, 2, 3];
+        let sut = LinkedList::from_list(vector);
+        assert_eq!(sut.head.unwrap().next.unwrap().next.unwrap().value, 3);
+    }
+
+    #[test]
+    fn test_macro() {
+        let sut: LinkedList<u32> = list![];
+        assert_eq!(sut.head, None);
+        let sut = list![2];
+        assert_eq!(sut.head.unwrap().value, 2);
+        let sut = list![1, 2, 3];
+        assert_eq!(sut.contains(1), true);
+        assert_eq!(sut.contains(2), true);
+        assert_eq!(sut.contains(3), true);
     }
 }
 
