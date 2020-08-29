@@ -1,6 +1,7 @@
 #[derive(Debug, Eq, PartialEq)]
 pub struct LinkedList<T> {
     head: Link<T>,
+    len: usize,
 }
 
 type Link<T> = Option<Box<Node<T>>>;
@@ -11,9 +12,12 @@ struct Node<T> {
     value: T,
 }
 
-impl <T> LinkedList<T> where T: Eq {
+impl<T> LinkedList<T>
+where
+    T: Eq,
+{
     fn new() -> Self {
-        LinkedList { head: None }
+        LinkedList { head: None, len: 0 }
     }
 
     pub fn from_vec(list: Vec<T>) -> Self {
@@ -24,17 +28,21 @@ impl <T> LinkedList<T> where T: Eq {
         result
     }
 
-    fn is_empty(self) -> bool {
-        self.head == None
+    pub fn is_empty(self) -> bool {
+        self.len == 0
     }
 
-    fn insert(&mut self, val: T) -> bool{
+    pub fn insert(&mut self, val: T) -> bool {
         match &mut self.head {
-            Some(first) => first.insert(val),
+            Some(first) => {
+                self.len += 1;
+                first.insert(val)
+            }
             None => {
                 self.head = Some(Box::new(Node::new(val)));
+                self.len += 1;
                 true
-            },
+            }
         }
     }
 
@@ -44,10 +52,30 @@ impl <T> LinkedList<T> where T: Eq {
             None => false,
         }
     }
-    
+
+    pub fn remove(&mut self, index: usize) -> bool {
+        if index >= self.len {
+            return false;
+        } else if index == 0 {
+            let mut old_head = self.head.take().unwrap();
+            if let Some(new) = old_head.next.take() {
+                self.head = Some(new);
+            }
+        }
+        match &mut self.head {
+            Some(val) => {
+                self.len -= 1;
+                return val.remove(index, 0);
+            }
+            None => false,
+        }
+    }
 }
 
-impl <T> Node<T> where T : Eq {
+impl<T> Node<T>
+where
+    T: Eq,
+{
     fn new(value: T) -> Self {
         Node { next: None, value }
     }
@@ -65,8 +93,7 @@ impl <T> Node<T> where T : Eq {
     fn contains(&self, val: T) -> bool {
         if val == self.value {
             true
-        }
-        else {
+        } else {
             match &self.next {
                 Some(iter) => iter.contains(val),
                 None => false,
@@ -74,6 +101,21 @@ impl <T> Node<T> where T : Eq {
         }
     }
 
+    fn remove(&mut self, index: usize, mut cur: usize) -> bool {
+        if cur + 1 == index {
+            let mut garbage = self.next.take().unwrap();
+            match garbage.next.take() {
+                None => true,
+                Some(new_link) => {
+                    self.next = Some(new_link);
+                    true
+                }
+            }
+        } else {
+            cur += 1;
+            return self.next.as_mut().unwrap().remove(index, cur);
+        }
+    }
 }
 
 macro_rules! list {
@@ -163,5 +205,34 @@ mod test {
         assert_eq!(sut.contains(2), true);
         assert_eq!(sut.contains(3), true);
     }
-}
 
+    #[test]
+    fn test_remove_simple() {
+        let mut sut: LinkedList<u32> = list![];
+        assert_ne!(true, sut.remove(0));
+        sut.insert(45);
+        assert!(sut.contains(45));
+        sut.remove(0);
+        assert!(!sut.contains(45))
+    }
+
+    #[test]
+    fn test_remove_more() {
+        let mut sut: LinkedList<u32> = list![];
+        sut.insert(45);
+        sut.insert(56);
+        sut.insert(234);
+        sut.insert(4345);
+        sut.insert(3532);
+        sut.insert(43234);
+
+        assert_eq!(sut.len, 6);
+        sut.remove(5);
+        assert!(!sut.contains(43234));
+        assert_eq!(sut.len, 5);
+
+        sut.remove(2);
+        assert!(!sut.contains(234));
+        assert_eq!(sut.len, 4);
+    }
+}
