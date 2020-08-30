@@ -55,20 +55,20 @@ where
 
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
-            return false;
+            false
         } else if index == 0 {
             let mut old_head = self.head.take().unwrap();
             if let Some(new) = old_head.next.take() {
                 self.head = Some(new);
             }
             self.len -= 1;
-            return true;
+            true
         }
         else {
             match &mut self.head {
                 Some(val) => {
                     self.len -= 1;
-                    return val.remove(index, 0);
+                    val.remove(index, 0)
                 }
                 None => false,
             }
@@ -117,7 +117,7 @@ where
             }
         } else {
             cur += 1;
-            return self.next.as_mut().unwrap().remove(index, cur);
+            self.next.as_mut().unwrap().remove(index, cur)
         }
     }
 }
