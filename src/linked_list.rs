@@ -61,13 +61,17 @@ where
             if let Some(new) = old_head.next.take() {
                 self.head = Some(new);
             }
+            self.len -= 1;
+            return true;
         }
-        match &mut self.head {
-            Some(val) => {
-                self.len -= 1;
-                return val.remove(index, 0);
+        else {
+            match &mut self.head {
+                Some(val) => {
+                    self.len -= 1;
+                    return val.remove(index, 0);
+                }
+                None => false,
             }
-            None => false,
         }
     }
 }
@@ -234,5 +238,23 @@ mod test {
         sut.remove(2);
         assert!(!sut.contains(234));
         assert_eq!(sut.len, 4);
+    }
+
+    #[test]
+    fn test_remove_head() {
+        let mut sut: LinkedList<u32> = list![];
+        sut.insert(45);
+        sut.insert(56);
+        sut.insert(234);
+        sut.insert(4345);
+        sut.insert(3532);
+        sut.insert(43234);
+
+        assert_eq!(sut.len, 6);
+        assert!(sut.contains(45));
+        sut.remove(0);
+        assert!(!sut.contains(45));
+        assert_eq!(sut.head.unwrap().value, 56);
+        assert_eq!(sut.len, 5);
     }
 }
