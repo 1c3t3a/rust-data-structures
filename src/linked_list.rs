@@ -64,12 +64,23 @@ where
             None => false,
         }
     }
+
+    pub fn is_sorted(&self) -> bool {
+        match &self.head {
+            Some(head) => return head.is_sorted(),
+            None => false,
+        }
+    }
 }
 
 impl<T> Node<T>
 where
     T: Eq,
 {
+    fn is_sorted(&self) -> bool {
+        true
+    }
+
     fn new(value: T) -> Self {
         Node { next: None, value }
     }
