@@ -1,3 +1,5 @@
+use std::convert::From;
+
 #[derive(Debug, Eq, PartialEq)]
 pub struct LinkedList<T> {
     head: Link<T>,
@@ -18,14 +20,6 @@ where
 {
     fn new() -> Self {
         LinkedList { head: None, len: 0 }
-    }
-
-    pub fn from_vec(list: Vec<T>) -> Self {
-        let mut result = Self::new();
-        for elem in list {
-            result.insert(elem);
-        }
-        result
     }
 
     pub fn is_empty(self) -> bool {
@@ -118,6 +112,7 @@ where
     }
 }
 
+#[macro_export]
 macro_rules! list {
     () => {
         LinkedList::new();
@@ -132,6 +127,16 @@ macro_rules! list {
         $(res.insert($elem);)+
         res
     }};
+}
+
+impl<T> From<Vec<T>> for LinkedList<T> where T: Eq{
+    fn from (list: Vec<T>) -> Self {
+        let mut result = list![];
+        for elem in list {
+            result.insert(elem);
+        }
+        result
+    }
 }
 
 #[cfg(test)]
@@ -184,13 +189,13 @@ mod test {
     #[test]
     fn test_to_list() {
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_vec(vector);
+        let sut = LinkedList::from(vector);
         assert_eq!(sut.head.unwrap().value, 1);
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_vec(vector);
+        let sut = LinkedList::from(vector);
         assert_eq!(sut.head.unwrap().next.unwrap().value, 2);
         let vector = vec![1, 2, 3];
-        let sut = LinkedList::from_vec(vector);
+        let sut = LinkedList::from(vector);
         assert_eq!(sut.head.unwrap().next.unwrap().next.unwrap().value, 3);
     }
 
