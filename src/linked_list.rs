@@ -254,7 +254,9 @@ mod test {
         assert!(sut.contains(45));
         sut.remove(0);
         assert!(!sut.contains(45));
-        assert_eq!(sut.head.unwrap().value, 56);
+        let val = sut.head.unwrap().value;
+        assert_eq!(val, 56);
         assert_eq!(sut.len, 5);
+        println!("{}", val);
     }
 }
