@@ -16,7 +16,7 @@ struct Node<T> {
 
 impl<T> LinkedList<T>
 where
-    T: Eq,
+    T: Eq + Ord,
 {
     fn new() -> Self {
         LinkedList { head: None, len: 0 }
@@ -75,13 +75,24 @@ where
 
 impl<T> Node<T>
 where
-    T: Eq,
+    T: Eq + Ord,
 {
     fn is_sorted(&self) -> bool {
-        true
+        let look = self;
+        match &look.next {
+            Some(val) => {
+                if look.value <= val.value {
+                    return val.is_sorted()
+                }
+                else {
+                    return false;
+                }
+            },
+            None => return true,
+        }
     }
 
-    fn new(value: T) -> Self {
+    fn new(value: T) -> Self where T: Ord{
         Node { next: None, value }
     }
 
@@ -140,7 +151,7 @@ macro_rules! list {
     }};
 }
 
-impl<T> From<Vec<T>> for LinkedList<T> where T: Eq{
+impl<T> From<Vec<T>> for LinkedList<T> where T: Eq + Ord{
     fn from (list: Vec<T>) -> Self {
         let mut result = list![];
         for elem in list {
@@ -250,5 +261,22 @@ mod test {
         sut.remove(2);
         assert!(!sut.contains(234));
         assert_eq!(sut.len, 4);
+    }
+
+    #[test]
+    fn test_is_sorted() {
+        let mut sut: LinkedList<u32> = list![];
+        sut.insert(45);
+        sut.insert(56);
+        sut.insert(234);
+        sut.insert(4345);
+        sut.insert(3532);
+        sut.insert(43234);
+
+        assert!(!sut.is_sorted());
+
+        sut.remove(4);
+
+        assert!(sut.is_sorted());
     }
 }
