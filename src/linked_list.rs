@@ -49,19 +49,23 @@ where
 
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
-            return false;
+            false
         } else if index == 0 {
             let mut old_head = self.head.take().unwrap();
             if let Some(new) = old_head.next.take() {
                 self.head = Some(new);
             }
+            self.len -= 1;
+            true
         }
-        match &mut self.head {
-            Some(val) => {
-                self.len -= 1;
-                return val.remove(index, 0);
+        else {
+            match &mut self.head {
+                Some(val) => {
+                    self.len -= 1;
+                    val.remove(index, 0)
+                }
+                None => false,
             }
-            None => false,
         }
     }
 
@@ -141,7 +145,7 @@ where
             }
         } else {
             cur += 1;
-            return self.next.as_mut().unwrap().remove(index, cur);
+            self.next.as_mut().unwrap().remove(index, cur)
         }
     }
 }
@@ -277,6 +281,18 @@ mod test {
 
     #[test]
     fn test_is_sorted() {
+
+        let mut sut = list![4,3,5];
+
+        assert!(!sut.is_sorted());
+
+        sut.remove(4);
+
+        assert!(sut.is_sorted());
+    }
+
+    fn test_remove_head() {
+
         let mut sut: LinkedList<u32> = list![];
         sut.insert(45);
         sut.insert(56);
@@ -285,10 +301,14 @@ mod test {
         sut.insert(3532);
         sut.insert(43234);
 
-        assert!(!sut.is_sorted());
+        assert_eq!(sut.len, 6);
+        assert!(sut.contains(45));
+        sut.remove(0);
+        assert!(!sut.contains(45));
+        let val = sut.head.unwrap().value;
+        assert_eq!(val, 56);
+        assert_eq!(sut.len, 5);
+        println!("{}", val);
 
-        sut.remove(4);
-
-        assert!(sut.is_sorted());
     }
 }
