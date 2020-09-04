@@ -71,6 +71,18 @@ where
             None => false,
         }
     }
+
+    pub fn sort(&mut self) {
+
+    }
+
+    fn split(&mut self) -> (LinkedList<T>, LinkedList<T>) {
+        (LinkedList::new(), LinkedList::new())
+    }    
+
+    fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
+        LinkedList::new()
+    }
 }
 
 impl<T> Node<T>
