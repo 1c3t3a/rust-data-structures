@@ -77,7 +77,7 @@ where
     }
 
     pub fn sort(&mut self) {
-        if self.is_sorted() || self.head == None {
+        if self.head == None {
             return;
         }
 
@@ -90,7 +90,10 @@ where
     }
 
     fn split(&mut self) -> (LinkedList<T>, LinkedList<T>) {
-        (LinkedList::new(), LinkedList::new())
+        let back = self.head.as_mut().unwrap().get_back(self.len / 2, 0).unwrap();
+        let front = self.head.take().unwrap();
+
+        (LinkedList::from(*front), LinkedList::from(*back))
     }    
 
     fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
@@ -102,6 +105,16 @@ impl<T> Node<T>
 where
     T: Eq + Ord,
 {
+    fn get_back(&mut self, index: usize, mut cur: usize) -> Option<Box<Node<T>>>{
+        if cur + 1 == index {
+            self.next.take()
+        }
+        else {
+            cur += 1;
+            self.next.as_mut().unwrap().get_back(index, cur)
+        }
+    }
+
     fn is_sorted(&self) -> bool {
         let look = self;
         match &look.next {
