@@ -77,7 +77,16 @@ where
     }
 
     pub fn sort(&mut self) {
+        if self.is_sorted() || self.head == None {
+            return;
+        }
 
+        let (mut front, mut back) = self.split();
+
+        front.sort();
+        back.sort();
+
+        self.head = Some(Box::new(Node::from(LinkedList::merge(&mut front, &mut back))));
     }
 
     fn split(&mut self) -> (LinkedList<T>, LinkedList<T>) {
@@ -148,6 +157,18 @@ where
             self.next.as_mut().unwrap().remove(index, cur)
         }
     }
+
+    fn get_length(&self) -> usize {
+        let mut count = 1;
+        let mut walk = Some(self);
+
+        while walk.unwrap().next.is_some() {
+            walk = walk.unwrap().next.as_deref();
+            count += 1;
+        }
+
+        count
+    }
 }
 
 #[macro_export]
@@ -174,6 +195,19 @@ impl<T> From<Vec<T>> for LinkedList<T> where T: Eq + Ord{
             result.insert(elem);
         }
         result
+    }
+}
+
+impl<T> From<LinkedList<T>> for Node<T> where T: Eq + Ord {
+    fn from(list: LinkedList<T>) -> Self {
+        *list.head.unwrap()
+    }
+}
+
+impl<T> From<Node<T>> for LinkedList<T> where T: Eq + Ord {
+    fn from(node: Node<T>) -> Self {
+        let length = node.get_length();
+        LinkedList { head: Some(Box::new(node)), len: length }
     }
 }
 
@@ -282,15 +316,19 @@ mod test {
     #[test]
     fn test_is_sorted() {
 
-        let mut sut = list![4,3,5];
+        let mut sut = list![];
+        sut.insert(4);
+        sut.insert(3);
+        sut.insert(5);
 
         assert!(!sut.is_sorted());
 
-        sut.remove(4);
+        sut.remove(0);
 
         assert!(sut.is_sorted());
     }
 
+    #[test]
     fn test_remove_head() {
 
         let mut sut: LinkedList<u32> = list![];
@@ -310,5 +348,16 @@ mod test {
         assert_eq!(sut.len, 5);
         println!("{}", val);
 
+    }
+
+    #[test]
+    fn test_get_length() {
+        let mut sut: LinkedList<u32> = list![1,2,4,5,6];
+
+        let head = sut.head.take().unwrap();
+
+        let test = LinkedList::from(*head);
+
+        assert_eq!(test.len, 5)
     }
 }
