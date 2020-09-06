@@ -105,7 +105,7 @@ where
     }    
 
     fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
-        let mut result: Option<LinkedList<T>> = None;
+        let mut result: Node<T>;
         
         if front.head.is_none() {
             return LinkedList::from(*back.head.take().unwrap());
@@ -114,10 +114,17 @@ where
             return LinkedList::from(*front.head.take().unwrap());
         }
 
-        // if front.head.unwrap().value <= back.head.unwrap().value {
-        //     result = Some(LinkedList::from(*front.head.take().unwrap()));
-        // }
-        LinkedList::new()
+        if front.head.as_ref().unwrap().value <= back.head.as_ref().unwrap().value {
+            result = Node::new(front.pop_front().unwrap());
+            result.set_next( Node::from(LinkedList::merge(front, back)));
+        }
+        else {
+            result = Node::new(back.pop_front().unwrap());
+
+            result.set_next( Node::from(LinkedList::merge(front, back)));
+        }
+        
+        LinkedList::from(result)
     }
 
     pub fn pop_front(&mut self) -> Option<T> {
@@ -180,6 +187,10 @@ impl<T> Node<T>
 where
     T: Eq + Ord,
 {
+    fn set_next(&mut self, new: Node<T>) {
+        self.next = Some(Box::new(new));
+    }
+
     fn get_back(&mut self, index: usize, mut cur: usize) -> Option<Box<Node<T>>>{
         if cur + 1 == index {
             self.next.take()
