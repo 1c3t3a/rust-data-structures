@@ -12,6 +12,15 @@ struct Node<T> {
     value: T,
 }
 
+pub struct Iter<'a, T: 'a> {
+    head: &'a Link<T>,
+    len: usize,
+}
+
+pub struct IntoIter<T: Eq> {
+    list: LinkedList<T>,
+}
+
 impl<T> LinkedList<T>
 where
     T: Eq,
@@ -63,8 +72,7 @@ where
             }
             self.len -= 1;
             true
-        }
-        else {
+        } else {
             match &mut self.head {
                 Some(val) => {
                     self.len -= 1;
@@ -73,6 +81,61 @@ where
                 None => false,
             }
         }
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        if self.len == 0 {
+            None
+        } else {
+            let mut old_head = self.head.take().unwrap();
+            let res = Some(old_head.value);
+            if let Some(next) = old_head.next.take() {
+                self.head = Some(next);
+            }
+            res
+        }
+    }
+
+    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
+        Iter {
+            head: &self.head,
+            len: self.len,
+        }
+    }
+}
+
+impl<T: Eq> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter { list: self }
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.len == 0 {
+            return None;
+        }
+        self.head.as_ref().map(|head| {
+            self.len -= 1;
+            self.head = &head.next;
+            &head.value
+        })
+    }
+
+    fn count(self) -> usize {
+        self.len
+    }
+}
+
+impl<'a, T: Eq> Iterator for IntoIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
     }
 }
 
@@ -258,5 +321,33 @@ mod test {
         assert_eq!(val, 56);
         assert_eq!(sut.len, 5);
         println!("{}", val);
+    }
+
+    #[test]
+    fn test_iter_count() {
+        let sut = list![1, 2, 3, 4, 5];
+        assert_eq!(sut.iter().count(), 5);
+    }
+
+    #[test]
+    fn test_iter_loop() {
+        let sut = list![1, 2, 3, 4, 5];
+        let mut iter_sut = sut.iter();
+        assert_eq!(iter_sut.next(), Some(&1));
+        assert_eq!(iter_sut.next(), Some(&2));
+        assert_eq!(iter_sut.next(), Some(&3));
+        assert_eq!(iter_sut.next(), Some(&4));
+        assert_eq!(iter_sut.next(), Some(&5));
+    }
+
+    #[test]
+    fn test_into_iter() {
+        let sut = list![1, 2, 3, 4, 5];
+        let mut iter_sut = sut.into_iter();
+        assert_eq!(iter_sut.next(), Some(1));
+        assert_eq!(iter_sut.next(), Some(2));
+        assert_eq!(iter_sut.next(), Some(3));
+        assert_eq!(iter_sut.next(), Some(4));
+        assert_eq!(iter_sut.next(), Some(5));
     }
 }
