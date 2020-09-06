@@ -97,6 +97,18 @@ where
     }    
 
     fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
+        let mut result: Option<LinkedList<T>> = None;
+        
+        if front.head.is_none() {
+            return LinkedList::from(*back.head.take().unwrap());
+        }
+        else if back.head.is_none() {
+            return LinkedList::from(*front.head.take().unwrap());
+        }
+
+        // if front.head.unwrap().value <= back.head.unwrap().value {
+        //     result = Some(LinkedList::from(*front.head.take().unwrap()));
+        // }
         LinkedList::new()
     }
 }
