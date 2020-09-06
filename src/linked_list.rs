@@ -12,6 +12,15 @@ struct Node<T> {
     value: T,
 }
 
+pub struct Iter<'a, T: 'a> {
+    head: &'a Link<T>,
+    len: usize,
+}
+
+pub struct IntoIter<T: Eq> {
+    list: LinkedList<T>,
+}
+
 impl<T> LinkedList<T>
 where
     T: Eq,
@@ -74,18 +83,34 @@ where
         }
     }
 
-    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
-        Iter { head: &self.head, len: self.len }
+    pub fn pop_front(&mut self) -> Option<T> {
+        if self.len == 0 {
+            None
+        } else {
+            let mut old_head = self.head.take().unwrap();
+            let res = Some(old_head.value);
+            if let Some(next) = old_head.next.take() {
+                self.head = Some(next);
+            }
+            res
+        }
     }
 
-    pub fn into_iter<'a>(&'a self) -> IntoIter<'a, T> {
-        IntoIter { list: &self }
+    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
+        Iter {
+            head: &self.head,
+            len: self.len,
+        }
     }
 }
 
-pub struct Iter<'a, T: 'a> {
-    head: &'a Link<T>,
-    len: usize,
+impl<T: Eq> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter { list: self }
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -106,15 +131,11 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-pub struct IntoIter<'a, T: Eq> {
-    list: &'a LinkedList<T>,
-}
+impl<'a, T: Eq> Iterator for IntoIter<T> {
+    type Item = T;
 
-impl<'a, T: Eq> IntoIterator for IntoIter<'a, T> {
-    type Item = &'a T;
-    type IntoIter = Iter<'a, T>;
-    fn into_iter(self) -> Self::IntoIter {
-        self.list.iter()
+    fn next(&mut self) -> Option<Self::Item> {
+        self.list.pop_front()
     }
 }
 
@@ -317,5 +338,16 @@ mod test {
         assert_eq!(iter_sut.next(), Some(&3));
         assert_eq!(iter_sut.next(), Some(&4));
         assert_eq!(iter_sut.next(), Some(&5));
+    }
+
+    #[test]
+    fn test_into_iter() {
+        let sut = list![1, 2, 3, 4, 5];
+        let mut iter_sut = sut.into_iter();
+        assert_eq!(iter_sut.next(), Some(1));
+        assert_eq!(iter_sut.next(), Some(2));
+        assert_eq!(iter_sut.next(), Some(3));
+        assert_eq!(iter_sut.next(), Some(4));
+        assert_eq!(iter_sut.next(), Some(5));
     }
 }
