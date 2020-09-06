@@ -43,16 +43,18 @@ where
     /// Creates a new and empty `LinkedList`.
     /// # Example
     /// ```rust
-    /// let mut linked_list = LinkedList::new();
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::<()>::new();
     /// assert!(linked_list.is_empty());
     ///```
-    fn new() -> Self {
+    pub fn new() -> Self {
         LinkedList { head: None, len: 0 }
     }
 
     /// Creates a `LinkedList` from a `Vec`.
     /// # Example
     /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
     /// let v = vec![1, 2, 3];
     /// let linked_list = LinkedList::from_vec(v);
     ///
@@ -76,6 +78,7 @@ where
     /// Appends a new element to the list.
     /// # Example
     /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
     /// linked_list.insert(1);
     /// linked_list.insert(2);
@@ -105,9 +108,10 @@ where
         }
     }
 
-    /// Removes an element from the list.
+    /// Removes an element at the given index from the list.
     /// # Example
     /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
     /// linked_list.insert(1);
     /// linked_list.insert(2);
@@ -115,9 +119,9 @@ where
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
     ///
-    /// linked_list.remove(1);
+    /// linked_list.remove(0);
     ///
-    /// assert!(!linked_list.contains(1))
+    /// assert!(!linked_list.contains(1));
     /// ```
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
@@ -143,6 +147,7 @@ where
     /// Removes the head and returns it as an Option.
     /// # Example
     /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
     /// linked_list.insert(1);
     /// linked_list.insert(2);
@@ -165,11 +170,12 @@ where
 
     /// Returns an `Iterator` over the elements of a list.
     /// # Example
-    /// ```rust
+    /// ```
+    /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
     /// linked_list.insert(1);
     /// linked_list.insert(2);
-    /// for elem in linked_list {
+    /// for elem in linked_list.iter() {
     ///     println!("{}", elem);   
     /// }
     /// ```
@@ -270,6 +276,7 @@ where
 /// Macro for creating a list with given elements. Works like the Vec![] Macro.
 /// # Example
 /// ```rust
+/// use data_structure_with_colin::linked_list::LinkedList;
 /// let linked_list = list![1, 2, 3];
 ///
 /// assert!(linked_list.contains(1));
