@@ -89,6 +89,8 @@ where
             return;
         }
 
+        //TODO: add length check
+
         let (mut front, mut back) = self.split();
 
         front.sort();
@@ -486,5 +488,13 @@ mod test {
         assert_eq!(iter_sut.next(), Some(3));
         assert_eq!(iter_sut.next(), Some(4));
         assert_eq!(iter_sut.next(), Some(5));
+    }
+
+    #[test]
+    fn test_sort() {
+        let mut sut = list![5,4,3,2,1];
+        assert!(!sut.is_sorted());
+        sut.sort();
+        assert!(sut.is_sorted());
     }
 }
