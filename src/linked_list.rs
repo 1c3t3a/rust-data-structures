@@ -434,8 +434,6 @@ where
 /// assert!(linked_list.contains(2));
 /// assert!(linked_list.contains(3));
 /// ```
-#[macro_export]
-
 macro_rules! list {
     () => {
         LinkedList::new();
