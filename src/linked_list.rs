@@ -1,24 +1,40 @@
+//! A safe linked list.
+//!
+//! The `LinkedList` allows inserting, removing and iterating it's elements.
+//!
+//! NOTE: This was written for a learning purpose.
+
 use std::convert::From;
 
+/// A linked list build from Nodes. This struct represents a linked list
+/// with a head and it's length.
 #[derive(Debug, Eq, PartialEq)]
 pub struct LinkedList<T> {
     head: Link<T>,
     len: usize,
 }
 
+/// A Link between Nodes.
 type Link<T> = Option<Box<Node<T>>>;
 
+/// A Node in a linked list which holds a reference to the next Node as well as a value.
 #[derive(Debug, Eq, PartialEq)]
 struct Node<T> {
     next: Link<T>,
     value: T,
 }
 
+/// The Iterator for a linked list, containing the head as well as the size of the list.
+/// Instances are created by [`LinkedList::iter()`]. See its
+/// documentation for more.
 pub struct Iter<'a, T: 'a> {
     head: &'a Link<T>,
     len: usize,
 }
 
+/// An owning Iteraror the elements of a linked list.
+/// Instances are created by [`LinkedList::into_iter()`]. See its
+/// documentation for more.
 pub struct IntoIter<T: Eq> {
     list: LinkedList<T>,
 }
@@ -27,7 +43,14 @@ impl<T> LinkedList<T>
 where
     T: Eq + Ord,
 {
-    fn new() -> Self {
+    /// Creates a new and empty `LinkedList`.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::<()>::new();
+    /// assert!(linked_list.is_empty());
+    ///```
+    pub fn new() -> Self {
         LinkedList { head: None, len: 0 }
     }
 
@@ -35,6 +58,37 @@ where
         self.len == 0
     }
 
+    /// Creates a `LinkedList` from a `Vec`.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let v = vec![1, 2, 3];
+    /// let linked_list = LinkedList::from_vec(v);
+    ///
+    /// assert!(linked_list.contains(1));
+    /// assert!(linked_list.contains(2));
+    /// assert!(linked_list.contains(3));
+    ///```
+    pub fn from_vec(list: Vec<T>) -> Self {
+        let mut result = Self::new();
+        for elem in list {
+            result.insert(elem);
+        }
+        result
+    }
+    
+
+    /// Appends a new element to the list.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::new();
+    /// linked_list.insert(1);
+    /// linked_list.insert(2);
+    ///
+    /// assert!(linked_list.contains(1));
+    /// assert!(linked_list.contains(2));
+    /// ```
     pub fn insert(&mut self, val: T) -> bool {
         match &mut self.head {
             Some(first) => {
@@ -49,6 +103,7 @@ where
         }
     }
 
+    /// Checks if a `LinkedList` contains a given element.
     pub fn contains(&self, val: T) -> bool {
         match &self.head {
             Some(first) => first.contains(val),
@@ -56,6 +111,21 @@ where
         }
     }
 
+    /// Removes an element at the given index from the list.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::new();
+    /// linked_list.insert(1);
+    /// linked_list.insert(2);
+    ///
+    /// assert!(linked_list.contains(1));
+    /// assert!(linked_list.contains(2));
+    ///
+    /// linked_list.remove(0);
+    ///
+    /// assert!(!linked_list.contains(1));
+    /// ```
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
             false
@@ -184,6 +254,16 @@ where
         LinkedList::from(result)
     }
 
+    /// Removes the head and returns it as an Option.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::new();
+    /// linked_list.insert(1);
+    /// linked_list.insert(2);
+    ///
+    /// assert_eq!(linked_list.pop_front(), Some(1))
+    /// ```
     pub fn pop_front(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -192,11 +272,23 @@ where
             let res = Some(old_head.value);
             if let Some(next) = old_head.next.take() {
                 self.head = Some(next);
+                self.len -= 1;
             }
             res
         }
     }
 
+    /// Returns an `Iterator` over the elements of a list.
+    /// # Example
+    /// ```
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::new();
+    /// linked_list.insert(1);
+    /// linked_list.insert(2);
+    /// for elem in linked_list.iter() {
+    ///     println!("{}", elem);   
+    /// }
+    /// ```
     pub fn iter<'a>(&'a self) -> Iter<'a, T> {
         Iter {
             head: &self.head,
@@ -209,6 +301,7 @@ impl<T: Eq + Ord> IntoIterator for LinkedList<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
 
+    /// Consumes the list into an iterator over the lists values.
     fn into_iter(self) -> Self::IntoIter {
         IntoIter { list: self }
     }
@@ -216,6 +309,8 @@ impl<T: Eq + Ord> IntoIterator for LinkedList<T> {
 
 impl<'a, T> Iterator for Iter<'a, T> {
     type Item = &'a T;
+
+    /// Returns the next element of a list iterator.
     fn next(&mut self) -> Option<Self::Item> {
         if self.len == 0 {
             return None;
@@ -227,6 +322,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
         })
     }
 
+    /// Returns the length of an iterator.
     fn count(self) -> usize {
         self.len
     }
@@ -235,6 +331,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 impl<'a, T: Eq + Ord> Iterator for IntoIter<T> {
     type Item = T;
 
+    /// Returns the next element of a IntoIter.
     fn next(&mut self) -> Option<Self::Item> {
         self.list.pop_front()
     }
@@ -327,7 +424,18 @@ where
     }
 }
 
+/// Macro for creating a list with given elements. Works like the Vec![] Macro.
+/// # Example
+/// ```rust
+/// use data_structure_with_colin::linked_list::LinkedList;
+/// let linked_list = list![1, 2, 3];
+///
+/// assert!(linked_list.contains(1));
+/// assert!(linked_list.contains(2));
+/// assert!(linked_list.contains(3));
+/// ```
 #[macro_export]
+
 macro_rules! list {
     () => {
         LinkedList::new();
@@ -515,6 +623,15 @@ mod test {
         let test = LinkedList::from(*head);
 
         assert_eq!(test.len, 5)
+    }
+
+    #[test]
+    fn test_pop_front() {
+        let mut sut = LinkedList::new();
+        sut.insert(1);
+        sut.insert(2);
+
+        assert_eq!(sut.pop_front(), Some(1))
     }
 
     #[test]
