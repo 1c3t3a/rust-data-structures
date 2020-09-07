@@ -31,7 +31,7 @@ where
         LinkedList { head: None, len: 0 }
     }
 
-    pub fn is_empty(self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.len == 0
     }
 
@@ -84,18 +84,23 @@ where
         }
     }
 
+    // TODO: Explain why mergesort not quick or radix or anything else
     pub fn sort(&mut self) {
         if self.head == None {
             return;
         }
 
         //TODO: add length check
-
         let (mut front, mut back) = self.split();
 
-        front.sort();
-        back.sort();
+        if front.len > 1  {
+            front.sort();
+        }
 
+        if back.len > 1 {
+            back.sort();
+        }
+    
         self.head = Some(Box::new(Node::from(LinkedList::merge(&mut front, &mut back))));
     }
 
@@ -496,5 +501,12 @@ mod test {
         assert!(!sut.is_sorted());
         sut.sort();
         assert!(sut.is_sorted());
+
+        let mut iter_sut = sut.iter();
+        assert_eq!(iter_sut.next(), Some(&1));
+        assert_eq!(iter_sut.next(), Some(&2));
+        assert_eq!(iter_sut.next(), Some(&3));
+        assert_eq!(iter_sut.next(), Some(&4));
+        assert_eq!(iter_sut.next(), Some(&5));
     }
 }
