@@ -382,7 +382,7 @@ where
         match &mut self.next {
             Some(iter) => iter.insert(val),
             None => {
-                self.next = Some(Box::new(Node::new(val)));
+                self.set_next(Node::new(val));
                 true
             }
         }
@@ -405,9 +405,9 @@ where
             match garbage.next.take() {
                 None => true,
                 Some(new_link) => {
-                    self.next = Some(new_link);
+                    self.set_next(*new_link);
                     true
-                }
+                },
             }
         } else {
             cur += 1;
