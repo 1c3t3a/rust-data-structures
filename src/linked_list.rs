@@ -407,7 +407,7 @@ where
                 Some(new_link) => {
                     self.set_next(*new_link);
                     true
-                },
+                }
             }
         } else {
             cur += 1;
