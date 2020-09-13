@@ -329,10 +329,12 @@ impl<T> Node<T>
 where
     T: Eq + Ord,
 {
+    #[inline]
     fn set_next(&mut self, new: Node<T>) {
         self.next = Some(Box::new(new));
     }
 
+    #[inline]
     fn get_back(&mut self, index: usize, mut cur: usize) -> Option<Box<Node<T>>> {
         if cur + 1 == index {
             self.next.take()
@@ -363,6 +365,7 @@ where
         Node { next: None, value }
     }
 
+    #[inline]
     fn insert(&mut self, val: T) -> bool {
         match &mut self.next {
             Some(iter) => iter.insert(val),
@@ -373,6 +376,7 @@ where
         }
     }
 
+    #[inline]
     fn contains(&self, val: T) -> bool {
         if val == self.value {
             true
@@ -384,6 +388,7 @@ where
         }
     }
 
+    #[inline]
     fn remove(&mut self, index: usize, mut cur: usize) -> bool {
         if cur + 1 == index {
             let mut garbage = self.next.take().unwrap();
