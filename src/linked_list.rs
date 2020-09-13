@@ -60,26 +60,6 @@ where
         self.len == 0
     }
 
-    /// Creates a `LinkedList` from a `Vec`.
-    /// # Example
-    /// ```rust
-    /// use data_structure_with_colin::linked_list::LinkedList;
-    /// let v = vec![1, 2, 3];
-    /// let linked_list = LinkedList::from_vec(v);
-    ///
-    /// assert!(linked_list.contains(1));
-    /// assert!(linked_list.contains(2));
-    /// assert!(linked_list.contains(3));
-    ///```
-    #[inline]
-    pub fn from_vec(list: Vec<T>) -> Self {
-        let mut result = Self::new();
-        for elem in list {
-            result.insert(elem);
-        }
-        result
-    }
-
     /// Appends a new element to the list.
     /// # Example
     /// ```rust
@@ -91,7 +71,6 @@ where
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
     /// ```
-    #[inline]
     pub fn insert(&mut self, val: T) -> bool {
         match &mut self.head {
             Some(first) => {
@@ -107,7 +86,6 @@ where
     }
 
     /// Checks if a `LinkedList` contains a given element.
-    #[inline]
     pub fn contains(&self, val: T) -> bool {
         match &self.head {
             Some(first) => first.contains(val),
@@ -130,7 +108,6 @@ where
     ///
     /// assert!(!linked_list.contains(1));
     /// ```
-    #[inline]
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
             false
@@ -152,7 +129,6 @@ where
         }
     }
 
-    #[inline]
     pub fn is_sorted(&self) -> bool {
         match &self.head {
             Some(head) => head.is_sorted(),
@@ -276,7 +252,6 @@ where
     ///
     /// assert_eq!(linked_list.pop_front(), Some(1))
     /// ```
-    #[inline]
     pub fn pop_front(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -302,7 +277,6 @@ where
     ///     println!("{}", elem);   
     /// }
     /// ```
-    #[inline]
     pub fn iter<'a>(&'a self) -> Iter<'a, T> {
         Iter {
             head: &self.head,
@@ -465,6 +439,18 @@ macro_rules! list {
     }};
 }
 
+
+/// Creates a `LinkedList` from a `Vec`.
+/// # Example
+/// ```rust
+/// use data_structure_with_colin::linked_list::LinkedList;
+/// let v = vec![1, 2, 3];
+/// let linked_list = LinkedList::from(v);
+///
+/// assert!(linked_list.contains(1));
+/// assert!(linked_list.contains(2));
+/// assert!(linked_list.contains(3));
+///```
 impl<T> From<Vec<T>> for LinkedList<T>
 where
     T: Eq + Ord,
