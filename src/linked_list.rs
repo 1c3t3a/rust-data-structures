@@ -50,10 +50,12 @@ where
     /// let mut linked_list = LinkedList::<()>::new();
     /// assert!(linked_list.is_empty());
     ///```
+    #[inline]
     pub fn new() -> Self {
         LinkedList { head: None, len: 0 }
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.len == 0
     }
@@ -69,6 +71,7 @@ where
     /// assert!(linked_list.contains(2));
     /// assert!(linked_list.contains(3));
     ///```
+    #[inline]
     pub fn from_vec(list: Vec<T>) -> Self {
         let mut result = Self::new();
         for elem in list {
@@ -88,6 +91,7 @@ where
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
     /// ```
+    #[inline]
     pub fn insert(&mut self, val: T) -> bool {
         match &mut self.head {
             Some(first) => {
@@ -103,6 +107,7 @@ where
     }
 
     /// Checks if a `LinkedList` contains a given element.
+    #[inline]
     pub fn contains(&self, val: T) -> bool {
         match &self.head {
             Some(first) => first.contains(val),
@@ -125,6 +130,7 @@ where
     ///
     /// assert!(!linked_list.contains(1));
     /// ```
+    #[inline]
     pub fn remove(&mut self, index: usize) -> bool {
         if index >= self.len {
             false
@@ -146,6 +152,7 @@ where
         }
     }
 
+    #[inline]
     pub fn is_sorted(&self) -> bool {
         match &self.head {
             Some(head) => head.is_sorted(),
@@ -204,7 +211,7 @@ where
     /// In an average case (input in random order) it lets you approximately double the length of
     /// each sorted run, which will typically improve speed by around 20-25%
     /// (though the percentage varies depending on how much larger your data is than the available memory).
-
+    #[inline]
     pub fn sort(&mut self) {
         if self.head.is_none() {
             return;
@@ -225,6 +232,7 @@ where
         ))));
     }
 
+    #[inline]
     fn split(&mut self) -> (LinkedList<T>, LinkedList<T>) {
         let back = self
             .head
@@ -237,6 +245,7 @@ where
         (LinkedList::from(*front), LinkedList::from(*back))
     }
 
+    #[inline]
     fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
         let mut result: Node<T>;
 
@@ -267,6 +276,7 @@ where
     ///
     /// assert_eq!(linked_list.pop_front(), Some(1))
     /// ```
+    #[inline]
     pub fn pop_front(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -292,6 +302,7 @@ where
     ///     println!("{}", elem);   
     /// }
     /// ```
+    #[inline]
     pub fn iter<'a>(&'a self) -> Iter<'a, T> {
         Iter {
             head: &self.head,
