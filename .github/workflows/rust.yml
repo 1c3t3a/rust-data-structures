@@ -24,3 +24,17 @@ jobs:
       run: cargo clippy --verbose
     - name: Check formatting
       run: cargo fmt --all -- --check
+  
+  codecov-tarpaulin:
+    name: Generate code coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hecrj/setup-rust-action@v1
+      - uses: actions-rs/tarpaulin@v0.1
+        with:
+          args: --all-features
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
