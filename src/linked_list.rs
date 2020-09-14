@@ -65,17 +65,17 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
     /// ```
-    pub fn insert(&mut self, val: T) -> bool {
+    pub fn append(&mut self, val: T) -> bool {
         match &mut self.head {
             Some(first) => {
                 self.len += 1;
-                first.insert(val)
+                first.append(val)
             }
             None => {
                 self.head = Some(Box::new(Node::new(val)));
@@ -98,8 +98,8 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
@@ -247,8 +247,8 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert_eq!(linked_list.pop_front(), Some(1))
     /// ```
@@ -271,8 +271,8 @@ where
     /// ```
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     /// for elem in linked_list.iter() {
     ///     println!("{}", elem);   
     /// }
@@ -366,9 +366,9 @@ where
     }
 
     #[inline]
-    fn insert(&mut self, val: T) -> bool {
+    fn append(&mut self, val: T) -> bool {
         match &mut self.next {
-            Some(iter) => iter.insert(val),
+            Some(iter) => iter.append(val),
             None => {
                 self.set_next(Node::new(val));
                 true
@@ -434,12 +434,12 @@ macro_rules! list {
     };
     ($elem:expr) => {{
         let mut res = LinkedList::new();
-        res.insert($elem);
+        res.append($elem);
         res
     }};
     ($($elem:expr),+) => {{
         let mut res = LinkedList::new();
-        $(res.insert($elem);)+
+        $(res.append($elem);)+
         res
     }};
 }
@@ -463,7 +463,7 @@ where
     fn from(list: Vec<T>) -> Self {
         let mut result = list![];
         for elem in list {
-            result.insert(elem);
+            result.append(elem);
         }
         result
     }
@@ -502,19 +502,19 @@ mod test {
     }
 
     #[test]
-    fn test_insert() {
+    fn test_append() {
         let mut sut = LinkedList::<i32>::new();
-        assert_eq!(&sut.insert(1), &true);
+        assert_eq!(&sut.append(1), &true);
         assert_eq!(sut.head.unwrap().value, (1 as i32));
     }
 
     #[test]
-    fn test_multiple_insert() {
+    fn test_multiple_append() {
         let mut sut = LinkedList::new();
-        sut.insert(3453);
-        sut.insert(342);
+        sut.append(3453);
+        sut.append(342);
         for i in 0..10 {
-            sut.insert(i);
+            sut.append(i);
         }
 
         for i in 0..10 {
@@ -534,7 +534,7 @@ mod test {
     fn test_contains() {
         let mut sut = LinkedList::<i32>::new();
         assert_eq!(sut.contains(42), false);
-        sut.insert(42);
+        sut.append(42);
         assert_eq!(sut.contains(42), true);
     }
 
@@ -567,7 +567,7 @@ mod test {
     fn test_remove_simple() {
         let mut sut: LinkedList<u32> = list![];
         assert_ne!(true, sut.remove(0));
-        sut.insert(45);
+        sut.append(45);
         assert!(sut.contains(45));
         sut.remove(0);
         assert!(!sut.contains(45))
@@ -576,12 +576,12 @@ mod test {
     #[test]
     fn test_remove_more() {
         let mut sut: LinkedList<u32> = list![];
-        sut.insert(45);
-        sut.insert(56);
-        sut.insert(234);
-        sut.insert(4345);
-        sut.insert(3532);
-        sut.insert(43234);
+        sut.append(45);
+        sut.append(56);
+        sut.append(234);
+        sut.append(4345);
+        sut.append(3532);
+        sut.append(43234);
 
         assert_eq!(sut.len, 6);
         sut.remove(5);
@@ -596,9 +596,9 @@ mod test {
     #[test]
     fn test_is_sorted() {
         let mut sut = list![];
-        sut.insert(4);
-        sut.insert(3);
-        sut.insert(5);
+        sut.append(4);
+        sut.append(3);
+        sut.append(5);
 
         assert!(!sut.is_sorted());
 
@@ -610,12 +610,12 @@ mod test {
     #[test]
     fn test_remove_head() {
         let mut sut: LinkedList<u32> = list![];
-        sut.insert(45);
-        sut.insert(56);
-        sut.insert(234);
-        sut.insert(4345);
-        sut.insert(3532);
-        sut.insert(43234);
+        sut.append(45);
+        sut.append(56);
+        sut.append(234);
+        sut.append(4345);
+        sut.append(3532);
+        sut.append(43234);
 
         assert_eq!(sut.len, 6);
         assert!(sut.contains(45));
@@ -641,8 +641,8 @@ mod test {
     #[test]
     fn test_pop_front() {
         let mut sut = LinkedList::new();
-        sut.insert(1);
-        sut.insert(2);
+        sut.append(1);
+        sut.append(2);
 
         assert_eq!(sut.pop_front(), Some(1))
     }
