@@ -50,31 +50,14 @@ where
     /// let mut linked_list = LinkedList::<()>::new();
     /// assert!(linked_list.is_empty());
     ///```
+    #[inline]
     pub fn new() -> Self {
         LinkedList { head: None, len: 0 }
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.len == 0
-    }
-
-    /// Creates a `LinkedList` from a `Vec`.
-    /// # Example
-    /// ```rust
-    /// use data_structure_with_colin::linked_list::LinkedList;
-    /// let v = vec![1, 2, 3];
-    /// let linked_list = LinkedList::from_vec(v);
-    ///
-    /// assert!(linked_list.contains(1));
-    /// assert!(linked_list.contains(2));
-    /// assert!(linked_list.contains(3));
-    ///```
-    pub fn from_vec(list: Vec<T>) -> Self {
-        let mut result = Self::new();
-        for elem in list {
-            result.insert(elem);
-        }
-        result
     }
 
     /// Appends a new element to the list.
@@ -82,17 +65,17 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
     /// ```
-    pub fn insert(&mut self, val: T) -> bool {
+    pub fn append(&mut self, val: T) -> bool {
         match &mut self.head {
             Some(first) => {
                 self.len += 1;
-                first.insert(val)
+                first.append(val)
             }
             None => {
                 self.head = Some(Box::new(Node::new(val)));
@@ -115,8 +98,8 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert!(linked_list.contains(1));
     /// assert!(linked_list.contains(2));
@@ -204,7 +187,7 @@ where
     /// In an average case (input in random order) it lets you approximately double the length of
     /// each sorted run, which will typically improve speed by around 20-25%
     /// (though the percentage varies depending on how much larger your data is than the available memory).
-
+    #[inline]
     pub fn sort(&mut self) {
         if self.head.is_none() {
             return;
@@ -225,6 +208,7 @@ where
         ))));
     }
 
+    #[inline]
     fn split(&mut self) -> (LinkedList<T>, LinkedList<T>) {
         let back = self
             .head
@@ -237,6 +221,7 @@ where
         (LinkedList::from(*front), LinkedList::from(*back))
     }
 
+    #[inline]
     fn merge(front: &mut LinkedList<T>, back: &mut LinkedList<T>) -> Self {
         let mut result: Node<T>;
 
@@ -262,8 +247,8 @@ where
     /// ```rust
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     ///
     /// assert_eq!(linked_list.pop_front(), Some(1))
     /// ```
@@ -286,8 +271,8 @@ where
     /// ```
     /// use data_structure_with_colin::linked_list::LinkedList;
     /// let mut linked_list = LinkedList::new();
-    /// linked_list.insert(1);
-    /// linked_list.insert(2);
+    /// linked_list.append(1);
+    /// linked_list.append(2);
     /// for elem in linked_list.iter() {
     ///     println!("{}", elem);   
     /// }
@@ -344,10 +329,12 @@ impl<T> Node<T>
 where
     T: Eq + Ord,
 {
+    #[inline]
     fn set_next(&mut self, new: Node<T>) {
         self.next = Some(Box::new(new));
     }
 
+    #[inline]
     fn get_back(&mut self, index: usize, mut cur: usize) -> Option<Box<Node<T>>> {
         if cur + 1 == index {
             self.next.take()
@@ -378,16 +365,18 @@ where
         Node { next: None, value }
     }
 
-    fn insert(&mut self, val: T) -> bool {
+    #[inline]
+    fn append(&mut self, val: T) -> bool {
         match &mut self.next {
-            Some(iter) => iter.insert(val),
+            Some(iter) => iter.append(val),
             None => {
-                self.next = Some(Box::new(Node::new(val)));
+                self.set_next(Node::new(val));
                 true
             }
         }
     }
 
+    #[inline]
     fn contains(&self, val: T) -> bool {
         if val == self.value {
             true
@@ -399,13 +388,14 @@ where
         }
     }
 
+    #[inline]
     fn remove(&mut self, index: usize, mut cur: usize) -> bool {
         if cur + 1 == index {
             let mut garbage = self.next.take().unwrap();
             match garbage.next.take() {
                 None => true,
                 Some(new_link) => {
-                    self.next = Some(new_link);
+                    self.set_next(*new_link);
                     true
                 }
             }
@@ -444,16 +434,27 @@ macro_rules! list {
     };
     ($elem:expr) => {{
         let mut res = LinkedList::new();
-        res.insert($elem);
+        res.append($elem);
         res
     }};
     ($($elem:expr),+) => {{
         let mut res = LinkedList::new();
-        $(res.insert($elem);)+
+        $(res.append($elem);)+
         res
     }};
 }
 
+/// Creates a `LinkedList` from a `Vec`.
+/// # Example
+/// ```rust
+/// use data_structure_with_colin::linked_list::LinkedList;
+/// let v = vec![1, 2, 3];
+/// let linked_list = LinkedList::from(v);
+///
+/// assert!(linked_list.contains(1));
+/// assert!(linked_list.contains(2));
+/// assert!(linked_list.contains(3));
+///```
 impl<T> From<Vec<T>> for LinkedList<T>
 where
     T: Eq + Ord,
@@ -461,7 +462,7 @@ where
     fn from(list: Vec<T>) -> Self {
         let mut result = list![];
         for elem in list {
-            result.insert(elem);
+            result.append(elem);
         }
         result
     }
@@ -500,19 +501,19 @@ mod test {
     }
 
     #[test]
-    fn test_insert() {
+    fn test_append() {
         let mut sut = LinkedList::<i32>::new();
-        assert_eq!(&sut.insert(1), &true);
+        assert_eq!(&sut.append(1), &true);
         assert_eq!(sut.head.unwrap().value, (1 as i32));
     }
 
     #[test]
-    fn test_multiple_insert() {
+    fn test_multiple_append() {
         let mut sut = LinkedList::new();
-        sut.insert(3453);
-        sut.insert(342);
+        sut.append(3453);
+        sut.append(342);
         for i in 0..10 {
-            sut.insert(i);
+            sut.append(i);
         }
 
         for i in 0..10 {
@@ -532,7 +533,7 @@ mod test {
     fn test_contains() {
         let mut sut = LinkedList::<i32>::new();
         assert_eq!(sut.contains(42), false);
-        sut.insert(42);
+        sut.append(42);
         assert_eq!(sut.contains(42), true);
     }
 
@@ -565,7 +566,7 @@ mod test {
     fn test_remove_simple() {
         let mut sut: LinkedList<u32> = list![];
         assert_ne!(true, sut.remove(0));
-        sut.insert(45);
+        sut.append(45);
         assert!(sut.contains(45));
         sut.remove(0);
         assert!(!sut.contains(45))
@@ -574,12 +575,12 @@ mod test {
     #[test]
     fn test_remove_more() {
         let mut sut: LinkedList<u32> = list![];
-        sut.insert(45);
-        sut.insert(56);
-        sut.insert(234);
-        sut.insert(4345);
-        sut.insert(3532);
-        sut.insert(43234);
+        sut.append(45);
+        sut.append(56);
+        sut.append(234);
+        sut.append(4345);
+        sut.append(3532);
+        sut.append(43234);
 
         assert_eq!(sut.len, 6);
         sut.remove(5);
@@ -594,9 +595,9 @@ mod test {
     #[test]
     fn test_is_sorted() {
         let mut sut = list![];
-        sut.insert(4);
-        sut.insert(3);
-        sut.insert(5);
+        sut.append(4);
+        sut.append(3);
+        sut.append(5);
 
         assert!(!sut.is_sorted());
 
@@ -608,12 +609,12 @@ mod test {
     #[test]
     fn test_remove_head() {
         let mut sut: LinkedList<u32> = list![];
-        sut.insert(45);
-        sut.insert(56);
-        sut.insert(234);
-        sut.insert(4345);
-        sut.insert(3532);
-        sut.insert(43234);
+        sut.append(45);
+        sut.append(56);
+        sut.append(234);
+        sut.append(4345);
+        sut.append(3532);
+        sut.append(43234);
 
         assert_eq!(sut.len, 6);
         assert!(sut.contains(45));
@@ -639,8 +640,8 @@ mod test {
     #[test]
     fn test_pop_front() {
         let mut sut = LinkedList::new();
-        sut.insert(1);
-        sut.insert(2);
+        sut.append(1);
+        sut.append(2);
 
         assert_eq!(sut.pop_front(), Some(1))
     }
