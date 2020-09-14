@@ -444,7 +444,6 @@ macro_rules! list {
     }};
 }
 
-
 /// Creates a `LinkedList` from a `Vec`.
 /// # Example
 /// ```rust
