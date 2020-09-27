@@ -1,0 +1,62 @@
+use std::{cmp::Ordering, iter::FromIterator, cmp::max};
+use std::mem::{replace, swap};
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct AVLNode<T: Ord> {
+    pub value: T, 
+    pub left: AVLTree<T>,
+    pub right: AVLTree<T>,
+    pub height: usize,
+}
+
+pub type AVLTree<T> = Option<Box<AVLNode<T>>>;
+
+impl<'a, T: 'a + Ord> AVLNode<T> {
+    pub fn balance_factor(&self) -> i8 {
+        (self.left_height() - self.right_height()) as i8
+    }
+
+    fn update_height(&mut self) {
+        self.height = 1 + max(self.left_height(), self.right_height())
+    }
+
+    fn left_height(&self) -> usize {
+        self.left.as_ref().map_or(0, |left| left.height())
+    }
+
+    fn right_height(&self) -> usize {
+        self.right.as_ref().map_or(0, |right| right.height())
+    }
+
+    fn height(&self) -> usize {
+        1 + max (
+            self.left.as_ref().map_or(0, |node| node.height()),
+            self.right.as_ref().map_or(0, |node| node.height())
+        )
+    }
+
+    fn rotate_right(&mut self) {
+        if self.left.is_none() {
+            return;
+        }
+
+        let new_center = self.left.as_mut().unwrap();
+        let new_left = new_center.left.take();
+        let left_of_new_right = new_center.right.take();
+
+        let mut new_right = replace(&mut self.left, new_left);
+        swap(&mut self.value, &mut new_right.as_mut().unwrap().value);
+        let right_tree = self.right.take();
+        
+        let new_right_node = new_right.as_mut().unwrap();
+        new_right_node.left = left_of_new_right;
+        new_right_node.right = right_tree;
+        self.right = new_right;
+
+        if let Some(node) = self.right.as_mut() {
+            node.update_height();
+        }
+
+        self.update_height();
+    }
+}
