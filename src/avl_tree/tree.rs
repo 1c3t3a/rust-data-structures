@@ -59,4 +59,53 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
 
         self.update_height();
     }
+
+    fn rotate_left(&mut self) {
+        if self.right.is_none() {
+            return;
+        }
+
+        let new_center = self.right.as_mut().unwrap();
+        let new_right = new_center.right.take();
+        let right_of_new_left = new_center.left.take();
+
+        let mut new_left = replace(&mut self.right, new_right);
+        swap(&mut self.value, &mut new_left.as_mut().unwrap().value);
+        let left_tree = self.left.take();
+
+        let new_left_node = new_left.as_mut().unwrap();
+        new_left_node.left = left_tree;
+        new_left_node.right = right_of_new_left;
+        self.left = new_left;
+
+        if let Some(node) = self.left.as_mut() {
+            node.update_height();
+        }
+
+        self.update_height();
+    }
+
+    pub fn rebalance(&mut self) {
+        match self.balance_factor() {
+            2 => {
+                let right_node = self.right.as_mut().unwrap();
+
+                if right_node.balance_factor() == -1 {
+                    right_node.rotate_right();
+                }
+
+                self.rotate_left();
+            }
+            -2 => {
+                let left_node = self.left.as_mut().unwrap();
+
+                if left_node.balance_factor() == 1 {
+                    left_node.rotate_left();
+                }
+
+                self.rotate_right();
+            }
+            _ => return
+        }
+    }
 }
