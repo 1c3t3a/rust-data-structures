@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, iter::FromIterator, cmp::max};
+use std::cmp::max;
 use std::mem::{replace, swap};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -16,7 +16,7 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
         (self.left_height() - self.right_height()) as i8
     }
 
-    fn update_height(&mut self) {
+    pub fn update_height(&mut self) {
         self.height = 1 + max(self.left_height(), self.right_height())
     }
 

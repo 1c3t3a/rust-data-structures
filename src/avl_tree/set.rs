@@ -1,20 +1,29 @@
 use crate::avl_tree::tree::*;
-use std::{cmp::Ordering, iter::FromIterator, cmp::max};
+use std::{cmp::Ordering, iter::FromIterator};
 
 #[derive(Debug, PartialEq, Clone)]
 struct AVLTreeSet<T: Ord> {
     root: AVLTree<T>,
 }
 
-impl<T: Ord> AVLTreeSet<T> {
+impl<'a, T: 'a + Ord> Default for AVLTreeSet<T> {
+    fn default() -> Self {
+        Self { root: None }
+    }
+}
+
+impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     fn new() -> Self {
         Self { root: None }
     }
 
     fn insert(&mut self, value: T) -> bool {
+        let mut prev_ptrs = Vec::<*mut AVLNode<T>>::new();
         let mut current = &mut self.root;
 
         while let Some(current_node) = current {
+            prev_ptrs.push(&mut **current_node);
+
             match current_node.value.cmp(&value) {
                 Ordering::Less => current = &mut current_node.right,
                 Ordering::Equal => return false,
@@ -22,12 +31,19 @@ impl<T: Ord> AVLTreeSet<T> {
             }
         }
 
-            *current = Some(Box::new(AVLNode {
-                value,
-                left: None,
-                right: None,
-                height: 0
-            }));
+        *current = Some(Box::new(AVLNode {
+            value,
+            left: None,
+            right: None,
+            height: 1
+        }));
+
+        for node_ptr in prev_ptrs.into_iter().rev() {
+            let node = unsafe { &mut *node_ptr };
+            node.update_height();
+            node.rebalance();
+        }
+
         true
     }   
 }
