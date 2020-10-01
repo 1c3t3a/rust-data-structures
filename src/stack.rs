@@ -33,7 +33,6 @@ pub struct IntoIter<T: Eq> {
 }
 
 impl<T: Eq> Stack<T> {
-
     /// Creates a new empty stack.
     /// ```rust
     /// use data_structure_with_colin::stack::Stack;
@@ -115,7 +114,7 @@ impl<T: Eq> Stack<T> {
         }
     }
 
-    /// Checks if the current stack is empty or not. 
+    /// Checks if the current stack is empty or not.
     /// ```rust
     /// use data_structure_with_colin::stack::Stack;
     /// let mut stack = Stack::new();
