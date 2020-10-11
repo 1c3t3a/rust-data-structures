@@ -146,7 +146,7 @@ impl<T: Eq> Default for Stack<T> {
     }
 }
 
-impl<T: Eq> From<LinkedList<T>> for Stack<T> {
+impl<T: Eq + Ord> From<LinkedList<T>> for Stack<T> {
     fn from(list: LinkedList<T>) -> Self {
         list.into_iter().collect()
     }
@@ -325,9 +325,9 @@ mod test {
     #[test]
     fn test_from() {
         let mut list = LinkedList::new();
-        list.insert(12);
-        list.insert(13);
-        list.insert(14);
+        list.append(12);
+        list.append(13);
+        list.append(14);
         let mut sut = Stack::from(list);
 
         assert!(sut.contains(12));
