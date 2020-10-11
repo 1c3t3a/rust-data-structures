@@ -152,7 +152,6 @@ impl<T: Eq> From<LinkedList<T>> for Stack<T> {
     }
 }
 
-
 impl<T: Eq> FromIterator<T> for Stack<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut result = Stack::new();
