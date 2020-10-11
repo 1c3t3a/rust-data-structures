@@ -4,9 +4,13 @@
 //!
 //! NOTE: This was written for a learning purpose.
 
-/// A Stack build from Nodes. This struct represents a Stack with a head node.
+use super::linked_list::LinkedList;
+use std::iter::FromIterator;
+
+/// A Stack build from Nodes. This struct represents a Stack with a head node and a size.
 pub struct Stack<T> {
     first: Link<T>,
+    size: i32,
 }
 
 /// A link between Nodes.
@@ -40,7 +44,10 @@ impl<T: Eq> Stack<T> {
     /// assert!(stack.is_empty());
     /// ```
     pub fn new() -> Self {
-        Stack { first: None }
+        Stack {
+            first: None,
+            size: 0,
+        }
     }
 
     /// Inserts into a stack. Remember that a stack works in the 'last in first out' principle.
@@ -53,10 +60,12 @@ impl<T: Eq> Stack<T> {
     pub fn push(&mut self, elem: T) {
         if self.is_empty() {
             self.first = Some(Box::new(Node::new(elem)));
+            self.size += 1;
         } else {
             let mut new_node = Box::new(Node::new(elem));
             new_node.next = self.first.take();
             self.first = Some(new_node);
+            self.size += 1;
         }
     }
 
@@ -69,11 +78,7 @@ impl<T: Eq> Stack<T> {
     /// assert_eq!(stack.size(), 2);
     /// ```
     pub fn size(&self) -> i32 {
-        if self.is_empty() {
-            return 0;
-        } else {
-            return self.first.as_ref().unwrap().size();
-        }
+        self.size
     }
 
     /// Checks if a stack contains a specific element. It iterates over the elements until it finds the searched one
@@ -110,6 +115,7 @@ impl<T: Eq> Stack<T> {
         } else {
             let mut old_head = self.first.take();
             self.first = old_head.as_mut().unwrap().next.take();
+            self.size -= 1;
             Some(old_head.unwrap().value)
         }
     }
@@ -132,19 +138,38 @@ impl<T: Eq> Stack<T> {
     }
 }
 
+impl<T: Eq> Default for Stack<T> {
+    /// Creates an empty `LinkedList<T>`.
+    #[inline]
+    fn default() -> Self {
+        Stack::new()
+    }
+}
+
+impl<T: Eq> From<LinkedList<T>> for Stack<T> {
+    fn from(list: LinkedList<T>) -> Self {
+        list.into_iter().collect()
+    }
+}
+
+
+impl<T: Eq> FromIterator<T> for Stack<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut result = Stack::new();
+        for elem in iter {
+            result.push(elem);
+        }
+        result
+    }
+}
+
 impl<T: Eq> Node<T> {
+    #[inline]
     fn new(value: T) -> Self {
         Node { next: None, value }
     }
 
-    fn size(&self) -> i32 {
-        if self.next.is_none() {
-            return 1;
-        } else {
-            return 1 + self.next.as_ref().unwrap().size();
-        }
-    }
-
+    #[inline]
     fn contains(&self, value: T) -> bool {
         return if self.value == value {
             true
@@ -281,5 +306,34 @@ mod test {
         assert_eq!(iter_sut.next(), Some(3));
         assert_eq!(iter_sut.next(), Some(2));
         assert_eq!(iter_sut.next(), Some(1));
+    }
+
+    #[test]
+    fn test_size() {
+        let mut sut = stack![1, 2, 3, 4];
+        assert_eq!(sut.size(), 4);
+        sut.pop();
+        assert_eq!(sut.size(), 3);
+    }
+
+    #[test]
+    fn test_default() {
+        let sut: Stack<()> = Default::default();
+        assert!(sut.is_empty());
+        assert_eq!(sut.size(), 0);
+    }
+
+    #[test]
+    fn test_from() {
+        let mut list = LinkedList::new();
+        list.insert(12);
+        list.insert(13);
+        list.insert(14);
+        let mut sut = Stack::from(list);
+
+        assert!(sut.contains(12));
+        assert!(sut.contains(13));
+        assert!(sut.contains(14));
+        assert_eq!(sut.pop(), Some(14));
     }
 }
