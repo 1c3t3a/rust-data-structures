@@ -1,4 +1,8 @@
+extern crate rand;
+
 use crate::avl_tree::tree::*;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::mem::replace;
 use std::{cmp::Ordering, iter::FromIterator};
 
@@ -231,8 +235,18 @@ impl<T: Ord> FromIterator<T> for AVLTreeSet<T> {
     }
 }
 
-/// Iterator
+impl<T: Ord> From<Vec<T>> for AVLTreeSet<T> {
+    fn from(vec: Vec<T>) -> AVLTreeSet<T> {
+        let mut avl: AVLTreeSet<T> = Default::default();
+        for item in vec {
+            avl.insert(item);
+        }
 
+        avl
+    }
+}
+
+/// Iterator
 impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     fn iter(&'a self) -> AVLTreeSetNodeIter<'a, T> {
         AVLTreeSetNodeIter {
@@ -294,6 +308,7 @@ mod test {
         tree.insert(50);
         tree.insert(70);
         tree.insert(90);
+        assert_eq!(tree.insert(90), false);
         assert_eq!(tree.contains(&50), true);
         assert_eq!(tree.contains(&70), true);
         assert_eq!(tree.contains(&90), true);
@@ -354,6 +369,19 @@ mod test {
         btree.insert(10);
         btree.insert(9);
         btree.insert(4);
+
+        for it in avl.iter().zip(btree.iter()) {
+            let (a, b) = it;
+            assert_eq!(&a.value, b)
+        }
+    }
+
+    #[test]
+    fn truly_random_insert() {
+        let mut vec: Vec<u32> = (0..10000).collect();
+        vec.shuffle(&mut thread_rng());
+        let mut avl = vec.iter().collect::<AVLTreeSet<_>>();
+        let mut btree = vec.iter().collect::<BTreeSet<_>>();
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
