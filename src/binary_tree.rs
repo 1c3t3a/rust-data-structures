@@ -61,7 +61,7 @@ impl<T: Eq + std::cmp::Ord> BinaryTree<T> {
         }
         self.head.as_mut().unwrap().insert(value)
     }
-    
+
     /// Checks if the tree is empty.
     pub fn is_empty(&self) -> bool {
         self.head.is_none()
