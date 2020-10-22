@@ -283,3 +283,54 @@ impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    #[test]
+    fn test_avl_insert_and_remove_basic() {
+        let mut tree = AVLTreeSet::new();
+        tree.insert(50);
+        tree.insert(70);
+        tree.insert(90);
+        assert_eq!(tree.contains(&50), true);
+        assert_eq!(tree.contains(&70), true);
+        assert_eq!(tree.contains(&90), true);
+        tree.remove(&70);
+        assert_eq!(tree.contains(&70), false);
+        assert_eq!(tree.root.unwrap().value, 90);
+    }
+
+
+    #[test]
+    fn test_insert_randomly() {
+        let avl = (1..50 as u8).collect::<AVLTreeSet<_>>();
+        let btree = (1..50 as u8).collect::<BTreeSet<_>>();
+
+        for it in avl.iter().zip(btree.iter()) {
+            let (a, b) = it;
+            assert_eq!(&a.value, b)
+        }
+    }
+
+    #[test]
+    fn test_delete_somehow_randomly() {
+        let mut avl = (1..50 as u8).collect::<AVLTreeSet<_>>();
+        let mut btree = (1..50 as u8).collect::<BTreeSet<_>>();
+
+        avl.remove(&45);
+        avl.remove(&12);
+        avl.remove(&36);
+
+        btree.remove(&45);
+        btree.remove(&12);
+        btree.remove(&36);
+
+        for it in avl.iter().zip(btree.iter()) {
+            let (a, b) = it;
+            assert_eq!(&a.value, b)
+        }
+    }
+}

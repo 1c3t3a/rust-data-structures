@@ -12,8 +12,16 @@ pub struct AVLNode<T: Ord> {
 pub type AVLTree<T> = Option<Box<AVLNode<T>>>;
 
 impl<'a, T: 'a + Ord> AVLNode<T> {
+    // Overflow precautions
     pub fn balance_factor(&self) -> i8 {
-        (self.left_height() - self.right_height()) as i8
+        let left_height = self.left_height();
+        let right_height = self.right_height();
+
+        if left_height >= right_height {
+            (left_height - right_height) as i8
+        } else {
+            -((right_height - left_height) as i8)
+        }
     }
 
     pub fn update_height(&mut self) {
@@ -21,18 +29,11 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
     }
 
     fn left_height(&self) -> usize {
-        self.left.as_ref().map_or(0, |left| left.height())
+        self.left.as_ref().map_or(0, |left| left.height)
     }
 
     fn right_height(&self) -> usize {
-        self.right.as_ref().map_or(0, |right| right.height())
-    }
-
-    fn height(&self) -> usize {
-        1 + max (
-            self.left.as_ref().map_or(0, |node| node.height()),
-            self.right.as_ref().map_or(0, |node| node.height())
-        )
+        self.right.as_ref().map_or(0, |right| right.height)
     }
 
     fn rotate_right(&mut self) {
@@ -87,19 +88,19 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
 
     pub fn rebalance(&mut self) {
         match self.balance_factor() {
-            2 => {
+            -2 => {
                 let right_node = self.right.as_mut().unwrap();
 
-                if right_node.balance_factor() == -1 {
+                if right_node.balance_factor() == 1 {
                     right_node.rotate_right();
                 }
 
                 self.rotate_left();
             }
-            -2 => {
+            2 => {
                 let left_node = self.left.as_mut().unwrap();
 
-                if left_node.balance_factor() == 1 {
+                if left_node.balance_factor() == -1 {
                     left_node.rotate_left();
                 }
 
