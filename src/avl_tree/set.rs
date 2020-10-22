@@ -377,4 +377,24 @@ mod test {
             assert_eq!(&a.value, b)
         }
     }
+
+    #[test]
+    fn random_remove() {
+        let mut vec: Vec<u32> = (0..100000).collect();
+        vec.shuffle(&mut thread_rng());
+        let mut avl = vec.iter().collect::<AVLTreeSet<_>>();
+        let mut btree = vec.iter().collect::<BTreeSet<_>>();
+
+        let mut remove: Vec<u32> = (0..10000).collect();
+        remove.shuffle(&mut thread_rng());
+        for item in remove.iter() {
+            avl.remove(&item);
+            btree.remove(&item);
+        }
+
+        for it in avl.iter().zip(btree.iter()) {
+            let (a, b) = it;
+            assert_eq!(&a.value, b)
+        }
+    }
 }
