@@ -315,16 +315,23 @@ mod test {
 
     #[test]
     fn test_delete_somehow_randomly() {
-        let mut avl = (1..50 as u8).collect::<AVLTreeSet<_>>();
-        let mut btree = (1..50 as u8).collect::<BTreeSet<_>>();
+        let mut avl = (1..100 as u16).collect::<AVLTreeSet<_>>();
+        let mut btree = (1..100 as u16).collect::<BTreeSet<_>>();
 
         avl.remove(&45);
         avl.remove(&12);
         avl.remove(&36);
+        avl.remove(&73);
+        avl.remove(&75);
+        avl.remove(&80);
+
 
         btree.remove(&45);
         btree.remove(&12);
         btree.remove(&36);
+        btree.remove(&73);
+        btree.remove(&75);
+        btree.remove(&80);
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
