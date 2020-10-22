@@ -260,8 +260,8 @@ where
             let res = Some(old_head.value);
             if let Some(next) = old_head.next.take() {
                 self.head = Some(next);
-                self.len -= 1;
             }
+            self.len -= 1;
             res
         }
     }
