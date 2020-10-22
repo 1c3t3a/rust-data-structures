@@ -344,17 +344,16 @@ mod test {
 
     #[test]
     fn test_insert() {
-        let mut  avl = AVLTreeSet::new();
+        let mut avl = AVLTreeSet::new();
         let mut btree = BTreeSet::new();
 
         avl.insert(10);
         avl.insert(9);
-        avl.insert(4); 
+        avl.insert(4);
 
         btree.insert(10);
         btree.insert(9);
-        btree.insert(4); 
-
+        btree.insert(4);
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
