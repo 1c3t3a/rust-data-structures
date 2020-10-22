@@ -3,7 +3,7 @@ use std::mem::{replace, swap};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct AVLNode<T: Ord> {
-    pub value: T, 
+    pub value: T,
     pub left: AVLTree<T>,
     pub right: AVLTree<T>,
     pub height: usize,
@@ -48,7 +48,7 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
         let mut new_right = replace(&mut self.left, new_left);
         swap(&mut self.value, &mut new_right.as_mut().unwrap().value);
         let right_tree = self.right.take();
-        
+
         let new_right_node = new_right.as_mut().unwrap();
         new_right_node.left = left_of_new_right;
         new_right_node.right = right_tree;
@@ -106,7 +106,7 @@ impl<'a, T: 'a + Ord> AVLNode<T> {
 
                 self.rotate_right();
             }
-            _ => return
+            _ => return,
         }
     }
 }

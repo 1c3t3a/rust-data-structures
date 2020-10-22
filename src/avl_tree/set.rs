@@ -1,6 +1,6 @@
 use crate::avl_tree::tree::*;
-use std::{cmp::Ordering, iter::FromIterator};
 use std::mem::replace;
+use std::{cmp::Ordering, iter::FromIterator};
 
 #[derive(Debug, PartialEq, Clone)]
 struct AVLTreeSet<T: Ord> {
@@ -36,7 +36,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
             value,
             left: None,
             right: None,
-            height: 1
+            height: 1,
         }));
 
         for node_ptr in prev_ptrs.into_iter().rev() {
@@ -47,7 +47,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
 
         true
     }
-    
+
     pub fn take(&mut self, value: &T) -> Option<T> {
         let mut prev_ptrs = Vec::<*mut AVLNode<T>>::new();
         let mut current_tree = &mut self.root;
@@ -132,9 +132,9 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
         Some(taken)
     }
 
-     fn find_inorder_succesor(target_node: &mut AVLNode<T>) -> T {
+    fn find_inorder_succesor(target_node: &mut AVLNode<T>) -> T {
         let right_tree = &mut target_node.right;
-            
+
         // Left tree of right is None, take first right
         if right_tree.as_ref().unwrap().left.is_none() {
             let mut right_node = right_tree.take().unwrap();
@@ -167,7 +167,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
             // Taken node is now filled with leftest value
             let inner_value = replace(&mut target_node.value, leftest_node.value);
 
-            // Leftest node is now the right child of former leftest, 
+            // Leftest node is now the right child of former leftest,
             // because leftest has no left child and if right child is none, then thats the end of this tree
             replace(&mut parent_leftest_node.left, leftest_node.right.take());
 
@@ -189,7 +189,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
 
             inner_value
         }
-     }
+    }
 
     pub fn remove(&mut self, value: &T) -> bool {
         self.take(value).is_some()
@@ -198,10 +198,10 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     pub fn contains(&self, value: &T) -> bool {
         self.get(value).is_some()
     }
-    
+
     pub fn get(&self, value: &T) -> Option<&T> {
-        let mut current_tree =  &self.root;
-    
+        let mut current_tree = &self.root;
+
         while let Some(current_node) = current_tree {
             match current_node.value.cmp(&value) {
                 Ordering::Less => {
@@ -217,7 +217,6 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
         }
         None
     }
-
 }
 
 impl<T: Ord> FromIterator<T> for AVLTreeSet<T> {
@@ -246,7 +245,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
 #[derive(Debug)]
 struct AVLTreeSetNodeIter<'a, T: Ord> {
     prev_nodes: Vec<&'a AVLNode<T>>,
-    current_tree: &'a AVLTree<T>
+    current_tree: &'a AVLTree<T>,
 }
 
 impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
@@ -256,12 +255,12 @@ impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
         loop {
             match *self.current_tree {
                 None => match self.prev_nodes.pop() {
-                    None => return None, 
+                    None => return None,
                     Some(ref prev_node) => {
                         self.current_tree = &prev_node.right;
                         return Some(prev_node);
                     }
-                }
+                },
                 Some(ref current_node) => {
                     if current_node.left.is_some() {
                         self.prev_nodes.push(&current_node);
@@ -269,7 +268,7 @@ impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
 
                         continue;
                     }
-                    
+
                     if current_node.right.is_some() {
                         self.current_tree = &current_node.right;
                         return Some(current_node);
@@ -302,7 +301,6 @@ mod test {
         assert_eq!(tree.contains(&70), false);
         assert_eq!(tree.root.unwrap().value, 90);
     }
-
 
     #[test]
     fn test_insert_randomly() {
