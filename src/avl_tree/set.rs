@@ -333,6 +333,9 @@ mod test {
         btree.remove(&75);
         btree.remove(&80);
 
+        assert_eq!(avl.contains(&90), true);
+        assert_eq!(avl.get(&90).unwrap(), &90);
+
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
             assert_eq!(&a.value, b)
