@@ -299,6 +299,7 @@ mod test {
         assert_eq!(tree.contains(&90), true);
         tree.remove(&70);
         assert_eq!(tree.contains(&70), false);
+        assert_eq!(tree.get(&50).unwrap(), &50);
         assert_eq!(tree.root.unwrap().value, 90);
     }
 
