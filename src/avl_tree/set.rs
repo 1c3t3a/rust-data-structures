@@ -235,17 +235,6 @@ impl<T: Ord> FromIterator<T> for AVLTreeSet<T> {
     }
 }
 
-impl<T: Ord> From<Vec<T>> for AVLTreeSet<T> {
-    fn from(vec: Vec<T>) -> AVLTreeSet<T> {
-        let mut avl: AVLTreeSet<T> = Default::default();
-        for item in vec {
-            avl.insert(item);
-        }
-
-        avl
-    }
-}
-
 /// Iterator
 impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     fn iter(&'a self) -> AVLTreeSetNodeIter<'a, T> {
