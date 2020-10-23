@@ -7,15 +7,10 @@ use std::mem::replace;
 use std::{cmp::Ordering, iter::FromIterator};
 
 #[derive(Debug, PartialEq, Clone)]
-struct AVLTreeSet<T: Ord> {
+pub struct AVLTreeSet<T: Ord> {
     root: AVLTree<T>,
 }
 
-impl<'a, T: 'a + Ord> Default for AVLTreeSet<T> {
-    fn default() -> Self {
-        Self { root: None }
-    }
-}
 
 impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     fn new() -> Self {
@@ -252,7 +247,7 @@ struct AVLTreeSetNodeIter<'a, T: Ord> {
 }
 
 impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
-    type Item = &'a AVLNode<T>;
+    type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -261,7 +256,7 @@ impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
                     None => return None,
                     Some(ref prev_node) => {
                         self.current_tree = &prev_node.right;
-                        return Some(prev_node);
+                        return Some(&prev_node.value);
                     }
                 },
                 Some(ref current_node) => {
@@ -274,12 +269,12 @@ impl<'a, T: 'a + Ord> Iterator for AVLTreeSetNodeIter<'a, T> {
 
                     if current_node.right.is_some() {
                         self.current_tree = &current_node.right;
-                        return Some(current_node);
+                        return Some(&current_node.value);
                     }
 
                     self.current_tree = &None;
 
-                    return Some(current_node);
+                    return Some(&current_node.value);
                 }
             }
         }
@@ -314,7 +309,7 @@ mod test {
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
-            assert_eq!(&a.value, b)
+            assert_eq!(a, b)
         }
     }
 
@@ -342,7 +337,7 @@ mod test {
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
-            assert_eq!(&a.value, b)
+            assert_eq!(a, b)
         }
     }
 
@@ -361,7 +356,7 @@ mod test {
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
-            assert_eq!(&a.value, b)
+            assert_eq!(a, b)
         }
     }
 
@@ -374,7 +369,7 @@ mod test {
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
-            assert_eq!(&a.value, b)
+            assert_eq!(a, b)
         }
     }
 
@@ -394,7 +389,7 @@ mod test {
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
-            assert_eq!(&a.value, b)
+            assert_eq!(a, b)
         }
     }
 }
