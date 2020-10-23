@@ -51,8 +51,8 @@ impl<T: Eq + std::cmp::Ord> BinaryTree<T> {
     /// binary_tree.insert(1);
     /// binary_tree.insert(2);
     ///
-    /// assert!(binary_tree.find(1));
-    /// assert!(binary_tree.find(2));
+    /// assert!(binary_tree.contains(1));
+    /// assert!(binary_tree.contains(2));
     /// ```
     pub fn insert(&mut self, value: T) -> bool {
         if self.is_empty() {
@@ -76,18 +76,18 @@ impl<T: Eq + std::cmp::Ord> BinaryTree<T> {
     /// let mut binary_tree = BinaryTree::new();
     /// binary_tree.insert(1);
     ///
-    /// assert!(binary_tree.find(1));
+    /// assert!(binary_tree.contains(1));
     /// ```
-    pub fn find(&self, value: T) -> bool {
+    pub fn contains(&self, value: T) -> bool {
         match self.head.as_ref() {
             Some(node) => match value.cmp(&node.value) {
                 Ordering::Equal => true,
                 Ordering::Greater => match node.right.as_ref() {
-                    Some(node) => node.find(value),
+                    Some(node) => node.contains(value),
                     None => false,
                 },
                 Ordering::Less => match node.left.as_ref() {
-                    Some(node) => node.find(value),
+                    Some(node) => node.contains(value),
                     None => false,
                 },
             },
@@ -208,15 +208,15 @@ impl<T: Eq + std::cmp::Ord> Node<T> {
         }
     }
 
-    fn find(&self, value: T) -> bool {
+    fn contains(&self, value: T) -> bool {
         match value.cmp(&self.value) {
             Ordering::Equal => true,
             Ordering::Greater => match self.right.as_ref() {
-                Some(node) => node.find(value),
+                Some(node) => node.contains(value),
                 None => false,
             },
             Ordering::Less => match self.left.as_ref() {
-                Some(node) => node.find(value),
+                Some(node) => node.contains(value),
                 None => false,
             },
         }
@@ -334,7 +334,7 @@ mod test {
     }
 
     #[test]
-    fn test_find() {
+    fn test_contains() {
         let mut sut = BinaryTree::new();
         sut.insert(10);
         sut.insert(8);
@@ -342,11 +342,11 @@ mod test {
         sut.insert(9);
         sut.insert(12);
 
-        assert!(sut.find(10));
-        assert!(sut.find(8));
-        assert!(sut.find(11));
-        assert!(sut.find(9));
-        assert!(sut.find(12));
+        assert!(sut.contains(10));
+        assert!(sut.contains(8));
+        assert!(sut.contains(11));
+        assert!(sut.contains(9));
+        assert!(sut.contains(12));
     }
 
     #[test]
