@@ -11,7 +11,6 @@ pub struct AVLTreeSet<T: Ord> {
     root: AVLTree<T>,
 }
 
-
 impl<'a, T: 'a + Ord> AVLTreeSet<T> {
     fn new() -> Self {
         Self { root: None }
