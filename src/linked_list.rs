@@ -283,6 +283,47 @@ where
             len: self.len,
         }
     }
+
+    /// Reverses the linked list.
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::linked_list::LinkedList;
+    /// let mut linked_list = LinkedList::new();
+    /// linked_list.append(1);
+    /// linked_list.append(2);
+    /// linked_list.append(3);
+    /// linked_list.append(4);
+    ///
+    /// let reversed = linked_list.reverse();
+    /// ```
+    pub fn reverse(&mut self) -> Self {
+        if self.is_empty() {
+            return LinkedList::new();
+        }
+
+        let mut cur = self.head.take().unwrap();
+
+        if cur.next.is_none() {
+            return LinkedList::from(*cur);
+        }
+
+        let mut next = cur.next.take().unwrap();
+
+        // return in case the list does not have more than two elements
+        if next.next.is_none() {
+            next.next = Some(cur);
+            return LinkedList::from(*next);
+        }
+
+        while next.next.is_some() {
+            let look_ahead = next.next.take().unwrap();
+            next.next = Some(cur);
+            cur = next;
+            next = look_ahead;
+        }
+
+        LinkedList::from(*next)
+    }
 }
 
 impl<T: Eq + Ord> IntoIterator for LinkedList<T> {
@@ -695,5 +736,31 @@ mod test {
         assert!(!sut.is_sorted());
         sut.sort();
         assert!(sut.is_sorted());
+    }
+
+    #[test]
+    fn test_list_reverse() {
+        let mut sut = list![1, 2, 3, 4];
+        let should = list![4, 3, 2, 1];
+
+        let reversed = sut.reverse();
+
+        let mut iter_should = should.iter();
+        let mut iter_reversed = reversed.iter();
+
+        assert_eq!(iter_should.next(), iter_reversed.next())
+    }
+
+    #[test]
+    fn test_list_reverse_short() {
+        let mut sut = list![1, 2];
+        let should = list![2, 1];
+
+        let reversed = sut.reverse();
+
+        let mut iter_should = should.iter();
+        let mut iter_reversed = reversed.iter();
+
+        assert_eq!(iter_should.next(), iter_reversed.next())
     }
 }
