@@ -68,7 +68,7 @@ where
                 }
             }
         }
-    }
+    } 
 
     pub fn get(&mut self, key: K) -> Option<&V> {
         if self.is_empty() {
@@ -116,6 +116,16 @@ mod test {
         sut.insert(1, "Colin ist dof");
 
         assert_eq!(sut.get(1), Some(&"Colin ist dof"));
+        assert!(!sut.is_empty());
+    }
+
+    #[test]
+    fn test_get_int() {
+        let mut sut = HashMap::new();
+        sut.insert(1, 42);
+
+        assert_eq!(sut.get(1), Some(&42));
+        assert_eq!(sut.get(2), None);
         assert!(!sut.is_empty());
     }
 }
