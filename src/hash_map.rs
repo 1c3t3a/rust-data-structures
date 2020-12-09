@@ -15,6 +15,15 @@ where
     K: Hash + Ord,
     V: Ord,
 {
+    /// Creates an instance
+    ///
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::hash_map::HashMap;
+    /// let map = HashMap::<(), ()>::new();
+    ///
+    /// assert!(map.is_empty());
+    /// ```
     pub fn new() -> Self {
         // seven buckets for the start
         HashMap {
@@ -22,6 +31,12 @@ where
         }
     }
 
+    /// Resizes the map. This could have multiple reasons:
+    /// - the map is not yet initialize -> create the a list of buckets which
+    ///   contains INITIAL_SIZE elements (currently seven).
+    /// - the list of buckets doesn't contain enough buckets and therefore the 
+    ///   size needs to be doubled. In that case the current content of the 
+    ///   buckets should be redistributed.
     fn resize(&mut self) {
         let mut target_size: usize = INITIAL_SIZE;
         if self.buckets.len() != 0 {
@@ -35,10 +50,23 @@ where
         let _ = mem::replace(&mut self.buckets, new_buckets);
     }
 
+    /// Checks if a map is currently empty.
+    ///
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::hash_map::HashMap;
+    /// let map = HashMap::<(), ()>::new();
+    ///
+    /// assert!(map.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
         self.buckets.len() == 0
     }
 
+    /// Returns the bucket for a certain key. As the key needs to implement
+    /// the Hash trait, we're able to hash it with the DefaultHasher.
+    /// Afterwards the bucket is retrieved by calculating the remainder of
+    /// the hash with the number of buckets.
     fn get_bucket(&self, key: &K) -> Option<usize> {
         if self.is_empty() {
             return None;
@@ -53,6 +81,16 @@ where
         return Some((hash % self.buckets.capacity() as u64) as usize);
     }
 
+    /// Inserts a tuple into the HashMap.
+    ///
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::hash_map::HashMap;
+    /// let mut map = HashMap::new();
+    /// map.insert(1, "Hello World");
+    ///
+    /// assert!(!map.is_empty());
+    /// ```
     pub fn insert(&mut self, key: K, value: V) {
         //TODO:  or too small
         if self.is_empty() {
@@ -68,8 +106,18 @@ where
                 }
             }
         }
-    } 
+    }
 
+    /// Returns a value for a given key.
+    ///
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::hash_map::HashMap;
+    /// let mut map = HashMap::new();
+    /// map.insert(42, 607);
+    ///
+    /// assert_eq!(map.get(42), Some(&607));
+    /// ```
     pub fn get(&mut self, key: K) -> Option<&V> {
         if self.is_empty() {
             return None;
@@ -107,7 +155,10 @@ mod test {
         assert_eq!(sut.get_bucket(&11201020120), sut.get_bucket(&11201020120));
 
         let sut = HashMap::<String, ()>::new();
-        assert_eq!(sut.get_bucket(&String::from("Rust is nice")), sut.get_bucket(&String::from("Rust is nice")));
+        assert_eq!(
+            sut.get_bucket(&String::from("Rust is nice")),
+            sut.get_bucket(&String::from("Rust is nice"))
+        );
     }
 
     #[test]
