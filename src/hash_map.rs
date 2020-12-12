@@ -67,10 +67,11 @@ where
     /// the Hash trait, we're able to hash it with the DefaultHasher.
     /// Afterwards the bucket is retrieved by calculating the remainder of
     /// the hash with the number of buckets.
-    fn get_bucket(&self, key: &K) -> Option<usize> {
-        if self.is_empty() {
-            return None;
-        }
+    fn get_bucket(&self, key: &K) -> usize {
+        // this call is only legal if the map is not empty
+        // empty checks should be done in every method befor
+        // evaluating the bucket
+        assert!(!self.is_empty());
 
         let mut hasher = DefaultHasher::new();
         key.hash(&mut hasher);
@@ -78,7 +79,7 @@ where
         let hash = hasher.finish();
 
         // TODO check if the cast is necessary
-        return Some((hash % self.buckets.capacity() as u64) as usize);
+        return (hash % self.buckets.capacity() as u64) as usize;
     }
 
     /// Inserts a tuple into the HashMap.
@@ -97,14 +98,37 @@ where
             self.resize()
         }
 
-        if let Some(bucket) = self.get_bucket(&key) {
-            match &mut self.buckets[bucket] {
-                Some(vector) => vector.push((key, value)),
-                None => {
-                    self.buckets[bucket] = Some(Vec::with_capacity(10));
-                    self.buckets[bucket].as_mut().unwrap().push((key, value));
-                }
+        let bucket = self.get_bucket(&key);
+        
+        match &mut self.buckets[bucket] {
+            Some(vector) => vector.push((key, value)),
+            None => {
+                self.buckets[bucket] = Some(Vec::with_capacity(10));
+                self.buckets[bucket].as_mut().unwrap().push((key, value));
             }
+        }
+    }
+
+    /// Returns whether a map contains a certain key.
+    ///
+    /// # Example
+    /// ```rust
+    /// use data_structure_with_colin::hash_map::HashMap;
+    /// let mut map = HashMap::new();
+    /// map.insert(42, "Hello World");
+    ///
+    /// assert!(map.contains_key(42));
+    /// ```
+    pub fn conains_key(&self, key: K) -> bool {
+        if self.is_empty() {
+            return false;
+        }
+        
+        let bucket = self.get_bucket(key);
+        
+        return match self.buckets[bucket] {
+          Some(vector) => vector.contains(key),
+          None => false,
         }
     }
 
@@ -123,16 +147,15 @@ where
             return None;
         }
 
-        if let Some(bucket) = self.get_bucket(&key) {
-            return match &self.buckets[bucket] {
-                Some(vec) => vec
-                    .into_iter()
-                    .find(|k| k.0 == key)
-                    .map_or(None, |tuple| Some(&tuple.1)),
-                None => None,
-            };
+        let Some(bucket) = self.get_bucket(&key);
+        
+        return match &self.buckets[bucket] {
+            Some(vec) => vec
+                .into_iter()
+                .find(|k| k.0 == key)
+                .map_or(None, |tuple| Some(&tuple.1)),
+            None => None,
         }
-        return None;
     }
 }
 
