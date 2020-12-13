@@ -34,8 +34,8 @@ where
     /// Resizes the map. This could have multiple reasons:
     /// - the map is not yet initialize -> create the a list of buckets which
     ///   contains INITIAL_SIZE elements (currently seven).
-    /// - the list of buckets doesn't contain enough buckets and therefore the 
-    ///   size needs to be doubled. In that case the current content of the 
+    /// - the list of buckets doesn't contain enough buckets and therefore the
+    ///   size needs to be doubled. In that case the current content of the
     ///   buckets should be redistributed.
     fn resize(&mut self) {
         let mut target_size: usize = INITIAL_SIZE;
@@ -99,7 +99,7 @@ where
         }
 
         let bucket = self.get_bucket(&key);
-        
+
         match &mut self.buckets[bucket] {
             Some(vector) => vector.push((key, value)),
             None => {
@@ -119,16 +119,16 @@ where
     ///
     /// assert!(map.contains_key(42));
     /// ```
-    pub fn conains_key(&self, key: K) -> bool {
+    pub fn contains_key(&self, key: K) -> bool {
         if self.is_empty() {
             return false;
         }
-        
-        let bucket = self.get_bucket(key);
-        
-        return match self.buckets[bucket] {
-          Some(vector) => vector.contains(key),
-          None => false,
+
+        let bucket = self.get_bucket(&key);
+
+        match self.buckets[bucket].as_ref() {
+            Some(vector) => vector.iter().find(|tuple| tuple.0 == key).is_some(),
+            None => false,
         }
     }
 
@@ -147,15 +147,15 @@ where
             return None;
         }
 
-        let Some(bucket) = self.get_bucket(&key);
-        
+        let bucket = self.get_bucket(&key);
+
         return match &self.buckets[bucket] {
             Some(vec) => vec
                 .into_iter()
                 .find(|k| k.0 == key)
                 .map_or(None, |tuple| Some(&tuple.1)),
             None => None,
-        }
+        };
     }
 }
 
@@ -173,11 +173,17 @@ mod test {
 
     #[test]
     fn test_get_bucket() {
-        let sut = HashMap::<i64, ()>::new();
+        let mut sut = HashMap::<i64, ()>::new();
+        // insert something to hold is_empty invariant
+        sut.insert(42, ());
+
         assert_eq!(sut.get_bucket(&1), sut.get_bucket(&1));
         assert_eq!(sut.get_bucket(&11201020120), sut.get_bucket(&11201020120));
 
-        let sut = HashMap::<String, ()>::new();
+        let mut sut = HashMap::<String, ()>::new();
+        // insert something to hold is_empty invariant
+        sut.insert(String::from("Test"), ());
+
         assert_eq!(
             sut.get_bucket(&String::from("Rust is nice")),
             sut.get_bucket(&String::from("Rust is nice"))
