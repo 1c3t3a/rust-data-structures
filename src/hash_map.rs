@@ -157,6 +157,12 @@ where
             None => None,
         };
     }
+
+    /// Put this here to test my credentials and to create
+    /// the necesessary method head.
+    pub fn remove_entry(&mut self, key: K) -> Option<&V> {
+        None
+    }
 }
 
 #[cfg(test)]
