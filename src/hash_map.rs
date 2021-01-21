@@ -1,14 +1,14 @@
-use std::collections::hash_map::DefaultHasher;
+use std::{collections::hash_map::DefaultHasher, vec};
 use std::hash::{Hash, Hasher};
 use std::mem;
+
+const INITIAL_SIZE: usize = 7;
+
+type Bucket<K, V> = Option<Vec<(K, V)>>;
 
 pub struct HashMap<K, V> {
     buckets: Vec<Bucket<K, V>>,
 }
-
-type Bucket<K, V> = Option<Vec<(K, V)>>;
-
-const INITIAL_SIZE: usize = 7;
 
 impl<K, V> HashMap<K, V>
 where
@@ -160,8 +160,20 @@ where
 
     /// Put this here to test my credentials and to create
     /// the necesessary method head.
-    pub fn remove_entry(&mut self, key: K) -> Option<&V> {
-        None
+    pub fn remove(&mut self, key: K) -> Option<V> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let bucket = self.get_bucket(&key);
+        return match self.buckets[bucket].take() {
+            Some(vec) => vec
+                .into_iter()
+                .find(|k| k.0 == key)
+                .take()
+                .map_or(None, |tuple| Some(tuple.1)),
+            None => None
+        }
     }
 }
 
@@ -213,5 +225,16 @@ mod test {
         assert_eq!(sut.get(1), Some(&42));
         assert_eq!(sut.get(2), None);
         assert!(!sut.is_empty());
+    }
+
+    #[test]
+    fn test_remove() {
+        let mut sut = HashMap::new();
+        sut.insert(45, "value");
+        sut.insert(98, "sec_value");
+
+        assert_eq!(sut.get(45), Some(&"value"));
+        sut.remove(45);
+        assert_eq!(sut.get(45), None);
     }
 }
