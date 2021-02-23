@@ -138,7 +138,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
             let mut right_node = right_tree.take().unwrap();
 
             let inner_value = replace(&mut target_node.value, right_node.value);
-            replace(&mut target_node.right, right_node.right.take());
+            let _ = replace(&mut target_node.right, right_node.right.take());
 
             target_node.update_height();
             target_node.rebalance();
@@ -167,7 +167,7 @@ impl<'a, T: 'a + Ord> AVLTreeSet<T> {
 
             // Leftest node is now the right child of former leftest,
             // because leftest has no left child and if right child is none, then thats the end of this tree
-            replace(&mut parent_leftest_node.left, leftest_node.right.take());
+            let _ = replace(&mut parent_leftest_node.left, leftest_node.right.take());
 
             // Start at the bottom with updating
             parent_leftest_node.update_height();
@@ -363,8 +363,8 @@ mod test {
     fn truly_random_insert() {
         let mut vec: Vec<u32> = (0..10000).collect();
         vec.shuffle(&mut thread_rng());
-        let mut avl = vec.iter().collect::<AVLTreeSet<_>>();
-        let mut btree = vec.iter().collect::<BTreeSet<_>>();
+        let avl = vec.iter().collect::<AVLTreeSet<_>>();
+        let btree = vec.iter().collect::<BTreeSet<_>>();
 
         for it in avl.iter().zip(btree.iter()) {
             let (a, b) = it;
