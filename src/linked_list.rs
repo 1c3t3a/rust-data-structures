@@ -322,6 +322,8 @@ where
             next = look_ahead;
         }
 
+        next.next = Some(cur);
+
         LinkedList::from(*next)
     }
 }
@@ -747,6 +749,9 @@ mod test {
 
         let mut iter_should = should.iter();
         let mut iter_reversed = reversed.iter();
+
+        let v = iter_reversed.next();
+        let z = iter_reversed.next();
 
         assert_eq!(iter_should.next(), iter_reversed.next())
     }
