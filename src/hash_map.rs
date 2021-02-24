@@ -172,8 +172,8 @@ where
                 .find(|k| k.0 == key)
                 .take()
                 .map_or(None, |tuple| Some(tuple.1)),
-            None => None
-        }
+            None => None,
+        };
     }
 }
 
